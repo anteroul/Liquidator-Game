@@ -135,7 +135,7 @@ func Setup() {
 func main() {
 	Setup() // Game Settings
 	// Create window and set target FPS
-	rl.InitWindow(screenWidth, screenHeight, "RayGo Engine")
+	rl.InitWindow(screenWidth, screenHeight, "The Liquidator")
 	rl.SetTargetFPS(60)
 
 	if enableFullScreen {
