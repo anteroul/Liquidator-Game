@@ -1,5 +1,5 @@
 // (C) Uljas Antero Lindell 2021
-// Version 0.2 Alpha
+// Version 0.3 Alpha
 
 package main
 
@@ -18,8 +18,12 @@ const MaxEnemies = 8
 
 var cWeapon = 0 // 0 = AR-15, 1 = Galil, 2 = Barrett, 3 = Groza, 4 = M60
 var currentFrame int32 = 0
-var enableFullScreen bool
 var enemyFrame int32 = 0
+var kills = 0
+var killsRequired int
+var wave = 1
+var enableFullScreen bool
+var inShop = false
 var firingRateCounter = 0
 var framesCounter = 0
 var reloadCounter = 0
@@ -73,6 +77,7 @@ type Game struct {
 	dead              rl.Texture2D
 	heart             rl.Texture2D
 	bg                rl.Texture2D
+	shopScreen        rl.Texture2D
 	deathScreen       rl.Texture2D
 	enemyTexture      rl.Texture2D
 	armedEnemyTexture rl.Texture2D
@@ -92,6 +97,11 @@ type Game struct {
 func RandBool() bool {
 	rand.Seed(time.Now().UnixNano())
 	return rand.Intn(2) == 1
+}
+
+func GetEnemies() int {
+	var enemies = 19 + wave
+	return enemies
 }
 
 func Setup() {
@@ -149,6 +159,7 @@ func main() {
 	game.char = rl.LoadTexture("res/soldier.png")
 	game.dead = rl.LoadTexture("res/dead_soldier.png")
 	game.bg = rl.LoadTexture("res/background.png")
+	game.shopScreen = rl.LoadTexture("res/shop_screen.png")
 	game.enemyTexture = rl.LoadTexture("res/enemy.png")
 	game.armedEnemyTexture = rl.LoadTexture("res/enemy_soldier.png")
 	game.splatter = rl.LoadTexture("res/splatter.png")
@@ -180,11 +191,14 @@ func main() {
 	sfxGroza = rl.LoadSound("res/sounds/groza.wav")
 	sfxSniper = rl.LoadSound("res/sounds/sniper.wav")
 
+	killsRequired = GetEnemies()
+
 	for !rl.WindowShouldClose() { // Game loop
 		// Reset game when the game is over
 		// TODO: Create a ResetGame() function (optional), recalling the NewGame() function makes textures to disappear. The bug was fixed with this temporary solution.
 		if game.gameOver {
 			if rl.IsKeyPressed(rl.KeyEnter) {
+				kills = 0
 				score = 0
 				money = 0
 				game.gameOver = false
@@ -243,6 +257,7 @@ func (g *Game) Init() {
 func (g *Game) deInit() {
 	// De-initialize everything and close window
 	rl.UnloadTexture(g.bg)
+	rl.UnloadTexture(g.shopScreen)
 	rl.UnloadTexture(g.heart)
 	rl.UnloadTexture(g.char)
 	rl.UnloadTexture(g.dead)
@@ -264,48 +279,68 @@ func (g *Game) deInit() {
 	rl.CloseWindow()
 }
 
+func displayShopScreen(g *Game) {
+	if rl.IsKeyPressed(rl.KeyEnter) {
+		g.player.position = rl.NewVector2(float32(screenWidth)/2, 40)
+		// Initialize bullets
+		for i := 0; i < MaxBullets; i++ {
+			g.bullet[i] = Bullet{rec: rl.Rectangle{X: g.player.position.X + 40, Y: g.player.position.Y + 105, Width: 5, Height: 10}, speed: rl.Vector2{Y: 15}, active: false, Color: rl.Yellow}
+		}
+		// Initialize enemies
+		for i := 0; i < MaxEnemies; i++ {
+			g.enemy[i] = Enemy{rl.Vector2{X: float32(rl.GetRandomValue(0, screenWidth-100)), Y: float32(rl.GetRandomValue(screenHeight, screenHeight+1000))}, false, true, 3}
+		}
+		inShop = false
+	}
+}
+
 func (g *Game) update() {
-	framesCounter++
 
-	if framesCounter%4 == 0 || framesCounter == 0 {
-		enemyFrame++
-		if g.player.reloading {
-			reloadCounter++
+	if !inShop {
+
+		framesCounter++
+
+		if kills == killsRequired {
+			for i := 0; i < 5; i++ {
+				g.gun[i].ammo = g.gun[i].maxAmmo
+			}
+			g.player.reloading = false
+			g.player.lives = PlayerMaxLife
+			kills = 0
+			wave++
+			killsRequired = GetEnemies()
+			inShop = true
 		}
-		if enemyFrame > 4 {
-			enemyFrame = 0
+
+		if framesCounter%4 == 0 || framesCounter == 0 {
+			enemyFrame++
+			if g.player.reloading {
+				reloadCounter++
+			}
+			if enemyFrame > 4 {
+				enemyFrame = 0
+			}
 		}
-	}
 
-	// Reload logic
-	if reloadCounter == 30 {
-		g.player.reloading = false
-		g.gun[cWeapon].ammo = g.gun[cWeapon].maxAmmo
-		reloadCounter = 0
-	}
+		// Reload logic
+		if reloadCounter == 30 {
+			g.player.reloading = false
+			g.gun[cWeapon].ammo = g.gun[cWeapon].maxAmmo
+			reloadCounter = 0
+		}
 
-	// Game over logic
-	if g.player.lives <= 0 {
-		g.gameOver = true
-	}
-	// Shoot logic
-	for i := 0; i < MaxBullets; i++ {
-		if g.bullet[i].active {
-			g.bullet[i].rec.Y += g.bullet[i].speed.Y
-			// Collision with enemy
-			for j := 0; j < MaxEnemies; j++ {
-				if g.enemy[j].active && !g.gameOver {
-					if rl.CheckCollisionRecs(g.bullet[i].rec, rl.Rectangle{X: g.enemy[j].position.X, Y: g.enemy[j].position.Y, Width: 90, Height: 40}) {
-						g.enemy[j].active = false
-						if !g.gun[cWeapon].armourPiercing {
-							g.bullet[i].active = false
-						}
-						rl.PlaySoundMulti(sfxDeath)
-						score += 100
-						money += 50
-					}
-					if g.enemy[j].position.Y < 100 {
-						if rl.CheckCollisionPointRec(rl.Vector2{X: g.bullet[i].rec.X, Y: g.bullet[i].rec.Y - 75}, rl.Rectangle{X: g.enemy[j].position.X, Y: g.enemy[j].position.Y, Width: 90, Height: 40}) {
+		// Game over logic
+		if g.player.lives <= 0 {
+			g.gameOver = true
+		}
+		// Shoot logic
+		for i := 0; i < MaxBullets; i++ {
+			if g.bullet[i].active {
+				g.bullet[i].rec.Y += g.bullet[i].speed.Y
+				// Collision with enemy
+				for j := 0; j < MaxEnemies; j++ {
+					if g.enemy[j].active && !g.gameOver {
+						if rl.CheckCollisionRecs(g.bullet[i].rec, rl.Rectangle{X: g.enemy[j].position.X, Y: g.enemy[j].position.Y, Width: 90, Height: 40}) {
 							g.enemy[j].active = false
 							if !g.gun[cWeapon].armourPiercing {
 								g.bullet[i].active = false
@@ -313,54 +348,71 @@ func (g *Game) update() {
 							rl.PlaySoundMulti(sfxDeath)
 							score += 100
 							money += 50
+							kills++
+						}
+						if g.enemy[j].position.Y < 100 {
+							if rl.CheckCollisionPointRec(rl.Vector2{X: g.bullet[i].rec.X, Y: g.bullet[i].rec.Y - 75}, rl.Rectangle{X: g.enemy[j].position.X, Y: g.enemy[j].position.Y, Width: 90, Height: 40}) {
+								g.enemy[j].active = false
+								if !g.gun[cWeapon].armourPiercing {
+									g.bullet[i].active = false
+								}
+								rl.PlaySoundMulti(sfxDeath)
+								score += 100
+								money += 50
+								kills++
+							}
 						}
 					}
 				}
-			}
-			if g.bullet[i].rec.Y+g.bullet[i].rec.Height >= screenHeight {
-				g.bullet[i].active = false
-			}
-		}
-	}
-	// Enemy behaviour
-	// TODO: Shooting for armed enemies (armed enemies are currently disabled)
-	for i := 0; i < MaxEnemies; i++ {
-		if g.enemy[i].active {
-			g.enemy[i].position.Y -= float32(rl.GetRandomValue(1, int32(g.enemy[i].speed)))
-			// Respawn and decrease lives
-			if g.enemy[i].position.Y < -120 {
-				g.enemy[i].position.X = float32(rl.GetRandomValue(0, screenWidth-100))
-				g.enemy[i].position.Y = float32(rl.GetRandomValue(screenHeight+200, screenHeight+1000))
-				g.player.lives--
-			}
-			// Collision with player
-			if !g.gameOver {
-				if rl.CheckCollisionRecs(rl.Rectangle{X: g.enemy[i].position.X, Y: g.enemy[i].position.Y, Width: 90, Height: 40}, rl.Rectangle{X: g.player.position.X, Y: g.player.position.Y, Width: 90, Height: 40}) {
-					g.enemy[i].active = false
-					g.player.lives--
+				if g.bullet[i].rec.Y+g.bullet[i].rec.Height >= screenHeight {
+					g.bullet[i].active = false
 				}
 			}
-			// Collision with barbed wire
-			if rl.CheckCollisionRecs(rl.Rectangle{X: g.enemy[i].position.X, Y: g.enemy[i].position.Y, Width: 90, Height: 40}, g.barbedWire) {
-				g.enemy[i].speed = 0.3
-			} else {
-				g.enemy[i].speed = 3
-			}
-		} else { // TODO: Fix the bug with splatter animations
-			g.splatterRec.X = float32(enemyFrame * g.enemyTexture.Width / 4)
-			if enemyFrame >= 4 {
-				g.enemy[i].position.X = float32(rl.GetRandomValue(0, screenWidth-100))
-				g.enemy[i].position.Y = float32(rl.GetRandomValue(screenHeight+200, screenHeight+1000))
-				g.enemy[i].active = true
-			}
 		}
-		updateEnemyRec(g, g.enemy[i])
+		// Enemy behaviour
+		// TODO: Shooting for armed enemies (armed enemies are currently disabled)
+		for i := 0; i < MaxEnemies; i++ {
+			if g.enemy[i].active {
+				g.enemy[i].position.Y -= float32(rl.GetRandomValue(1, int32(g.enemy[i].speed)))
+				// Respawn and decrease lives
+				if g.enemy[i].position.Y < -120 {
+					g.enemy[i].position.X = float32(rl.GetRandomValue(0, screenWidth-100))
+					g.enemy[i].position.Y = float32(rl.GetRandomValue(screenHeight+200, screenHeight+1000))
+					g.player.lives--
+				}
+				// Collision with player
+				if !g.gameOver {
+					if rl.CheckCollisionRecs(rl.Rectangle{X: g.enemy[i].position.X, Y: g.enemy[i].position.Y, Width: 90, Height: 40}, rl.Rectangle{X: g.player.position.X, Y: g.player.position.Y, Width: 90, Height: 40}) {
+						g.enemy[i].active = false
+						g.player.lives--
+					}
+				}
+				// Collision with barbed wire
+				if rl.CheckCollisionRecs(rl.Rectangle{X: g.enemy[i].position.X, Y: g.enemy[i].position.Y, Width: 90, Height: 40}, g.barbedWire) {
+					g.enemy[i].speed = 0.3
+				} else {
+					g.enemy[i].speed = 3
+				}
+			} else { // TODO: Fix the bug with splatter animations
+				g.splatterRec.X = float32(enemyFrame * g.enemyTexture.Width / 4)
+				if enemyFrame >= 4 {
+					g.enemy[i].position.X = float32(rl.GetRandomValue(0, screenWidth-100))
+					g.enemy[i].position.Y = float32(rl.GetRandomValue(screenHeight+200, screenHeight+1000))
+					g.enemy[i].active = true
+				}
+			}
+			updateEnemyRec(g, g.enemy[i])
+		}
+		// Update controls if player is alive
+		if !g.gameOver {
+			keyCallback(g) // Game controls
+		}
+	} else {
+		displayShopScreen(g)
 	}
-	// Update controls if player is alive
-	if !g.gameOver {
-		keyCallback(g) // Game controls
-	}
+
 	draw(g) // Display graphics
+
 }
 
 func updateEnemyRec(g *Game, enemy Enemy) {
@@ -476,36 +528,40 @@ func keyCallback(g *Game) {
 func draw(g *Game) {
 	rl.BeginDrawing()
 	rl.ClearBackground(rl.DarkGray)
-	rl.DrawTexture(g.bg, 0, 0, rl.White) // Draw background
-	// Draw player character
-	if !g.gameOver {
-		rl.DrawTextureRec(g.char, g.playerRec, g.player.position, rl.White)
-	} else {
-		rl.DrawTexture(g.dead, int32(g.player.position.X-50), int32(g.player.position.Y-60), rl.White)
-	}
-	// Draw enemies
-	for i := 0; i < MaxEnemies; i++ {
-		if g.enemy[i].active {
-			switch g.enemy[i].armed {
-			case true:
-				rl.DrawTextureRec(g.armedEnemyTexture, g.enemyRec, g.enemy[i].position, rl.White)
-				break
-			case false:
-				rl.DrawTextureRec(g.enemyTexture, g.enemyRec, g.enemy[i].position, rl.White)
-				break
-			}
+	if !inShop {
+		rl.DrawTexture(g.bg, 0, 0, rl.White) // Draw background
+		// Draw player character
+		if !g.gameOver {
+			rl.DrawTextureRec(g.char, g.playerRec, g.player.position, rl.White)
 		} else {
-			rl.DrawTextureRec(g.splatter, g.splatterRec, g.enemy[i].position, rl.White)
+			rl.DrawTexture(g.dead, int32(g.player.position.X-50), int32(g.player.position.Y-60), rl.White)
 		}
-	}
-	// Draw bullets
-	for i := 0; i < MaxBullets; i++ {
-		if g.bullet[i].active {
-			rl.DrawRectangleRec(g.bullet[i].rec, g.bullet[i].Color)
-			if g.bullet[i].rec.Y < g.player.position.Y+140 {
-				rl.DrawCircle(int32(g.player.position.X+41.5), int32(g.player.position.Y+112.5), 15, rl.Orange)
+		// Draw enemies
+		for i := 0; i < MaxEnemies; i++ {
+			if g.enemy[i].active {
+				switch g.enemy[i].armed {
+				case true:
+					rl.DrawTextureRec(g.armedEnemyTexture, g.enemyRec, g.enemy[i].position, rl.White)
+					break
+				case false:
+					rl.DrawTextureRec(g.enemyTexture, g.enemyRec, g.enemy[i].position, rl.White)
+					break
+				}
+			} else {
+				rl.DrawTextureRec(g.splatter, g.splatterRec, g.enemy[i].position, rl.White)
 			}
 		}
+		// Draw bullets
+		for i := 0; i < MaxBullets; i++ {
+			if g.bullet[i].active {
+				rl.DrawRectangleRec(g.bullet[i].rec, g.bullet[i].Color)
+				if g.bullet[i].rec.Y < g.player.position.Y+140 {
+					rl.DrawCircle(int32(g.player.position.X+41.5), int32(g.player.position.Y+112.5), 15, rl.Orange)
+				}
+			}
+		}
+	} else { // Draw shop screen
+		rl.DrawTexture(g.shopScreen, 0, 0, rl.White)
 	}
 	// Draw hearts
 	for i := 0; i <= g.player.lives; i++ {
@@ -545,7 +601,9 @@ func draw(g *Game) {
 	}
 
 	rl.DrawText(strconv.Itoa(score), 20, screenHeight-60, 40, rl.White)
-	rl.DrawText(strconv.Itoa(money)+"$", 20, 40, 40, rl.Green)
+	rl.DrawText("Kills: "+strconv.Itoa(kills), 240, screenHeight-60, 40, rl.SkyBlue)
+	rl.DrawText(" / "+strconv.Itoa(killsRequired), 380, screenHeight-60, 40, rl.SkyBlue)
+	rl.DrawText(strconv.Itoa(money)+"$", 20, 80, 40, rl.Green)
 	rl.DrawFPS(5, 0)
 	rl.EndDrawing()
 }
