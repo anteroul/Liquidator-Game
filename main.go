@@ -1,5 +1,5 @@
 // (C) Uljas Antero Lindell 2021
-// Version 0.1 Alpha
+// Version 0.2 Alpha
 
 package main
 
@@ -31,17 +31,17 @@ var sfxRifle rl.Sound
 var sfxSniper rl.Sound
 
 type Player struct {
-	position 	rl.Vector2
-	lives    	int
-	speed    	float32
-	reloading	bool
+	position  rl.Vector2
+	lives     int
+	speed     float32
+	reloading bool
 }
 
 type Enemy struct {
-	position	rl.Vector2
-	armed		bool
-	active		bool
-	speed		float32
+	position rl.Vector2
+	armed    bool
+	active   bool
+	speed    float32
 }
 
 type Bullet struct {
@@ -52,40 +52,41 @@ type Bullet struct {
 }
 
 type Gun struct {
-	name			string
-	automatic		bool
-	armourPiercing	bool
-	firingRate		int // Low number = fast rate of fire
-	ammo			int
-	maxAmmo			int
-	gunIcon			rl.Texture2D
+	name           string
+	automatic      bool
+	armourPiercing bool
+	inInventory    bool
+	firingRate     int // Low number = fast rate of fire
+	ammo           int
+	maxAmmo        int
+	gunIcon        rl.Texture2D
 }
 
 type Game struct {
-	gameOver 			bool
-	pause    			bool
-	player   			Player
-	enemy[MaxEnemies]	Enemy
-	bullet[MaxBullets]	Bullet
-	gun[5]				Gun
-	char     			rl.Texture2D
-	dead     			rl.Texture2D
-	heart    			rl.Texture2D
-	bg       			rl.Texture2D
-	deathScreen			rl.Texture2D
-	enemyTexture		rl.Texture2D
-	armedEnemyTexture	rl.Texture2D
-	splatter			rl.Texture2D
-	bulletTex			rl.Texture2D
-	armalite			rl.Texture2D
-	barrett				rl.Texture2D
-	galil				rl.Texture2D
-	groza				rl.Texture2D
-	machineGun			rl.Texture2D
-	playerRec 			rl.Rectangle
-	enemyRec			rl.Rectangle
-	splatterRec			rl.Rectangle
-	barbedWire			rl.Rectangle
+	gameOver          bool
+	pause             bool
+	player            Player
+	enemy             [MaxEnemies]Enemy
+	bullet            [MaxBullets]Bullet
+	gun               [5]Gun
+	char              rl.Texture2D
+	dead              rl.Texture2D
+	heart             rl.Texture2D
+	bg                rl.Texture2D
+	deathScreen       rl.Texture2D
+	enemyTexture      rl.Texture2D
+	armedEnemyTexture rl.Texture2D
+	splatter          rl.Texture2D
+	bulletTex         rl.Texture2D
+	armalite          rl.Texture2D
+	barrett           rl.Texture2D
+	galil             rl.Texture2D
+	groza             rl.Texture2D
+	machineGun        rl.Texture2D
+	playerRec         rl.Rectangle
+	enemyRec          rl.Rectangle
+	splatterRec       rl.Rectangle
+	barbedWire        rl.Rectangle
 }
 
 func RandBool() bool {
@@ -163,11 +164,11 @@ func main() {
 	game.splatterRec = rl.Rectangle{Width: float32(game.splatter.Width / 4), Height: float32(game.splatter.Height)}
 	game.barbedWire = rl.Rectangle{X: 0, Y: 100, Width: screenWidth, Height: 80}
 
-	game.gun[0] = Gun{"AR-15", false, false, 6, 30, 30, game.armalite}
-	game.gun[1] = Gun{"Galil", true, false, 6, 30, 30, game.galil}
-	game.gun[2] = Gun{"Barrett", false, true, 6, 20, 20, game.barrett}
-	game.gun[3] = Gun{"Groza", true, true, 4, 20, 20, game.groza}
-	game.gun[4] = Gun{"M60", true, false, 8, 100, 100, game.machineGun}
+	game.gun[0] = Gun{"AR-15", false, false, true, 6, 30, 30, game.armalite}
+	game.gun[1] = Gun{"Galil", true, false, false, 6, 30, 30, game.galil}
+	game.gun[2] = Gun{"Barrett", false, true, false, 6, 20, 20, game.barrett}
+	game.gun[3] = Gun{"Groza", true, true, false, 4, 20, 20, game.groza}
+	game.gun[4] = Gun{"M60", true, false, false, 8, 100, 100, game.machineGun}
 
 	for i := 0; i < 5; i++ {
 		game.gun[i].ammo = game.gun[i].maxAmmo
@@ -197,7 +198,7 @@ func main() {
 				}
 				// Initialize enemies
 				for i := 0; i < MaxEnemies; i++ {
-					game.enemy[i] = Enemy{rl.Vector2{X: float32(rl.GetRandomValue(0, screenWidth - 100)), Y: float32(rl.GetRandomValue(screenHeight, screenHeight + 1000))}, false, true, 3}
+					game.enemy[i] = Enemy{rl.Vector2{X: float32(rl.GetRandomValue(0, screenWidth-100)), Y: float32(rl.GetRandomValue(screenHeight, screenHeight+1000))}, false, true, 3}
 				}
 				for i := 0; i < 5; i++ {
 					game.gun[i].ammo = game.gun[i].maxAmmo
@@ -208,8 +209,8 @@ func main() {
 		game.update() // Keep the game running
 
 		/*
-		TODO: Implement a function/scene for a shop with the functionality of purchasing weapons with your money
-		TODO: Implement a money variable and the functionality for it
+			TODO: Implement a function/scene for a shop with the functionality of purchasing weapons with your money
+			TODO: Implement a money variable and the functionality for it
 		*/
 
 	}
@@ -235,7 +236,7 @@ func (g *Game) Init() {
 	}
 	// Initialize enemies
 	for i := 0; i < MaxEnemies; i++ {
-		g.enemy[i] = Enemy{rl.Vector2{X: float32(rl.GetRandomValue(0, screenWidth - 100)), Y: float32(rl.GetRandomValue(screenHeight, screenHeight + 1000))}, false, true, 3}
+		g.enemy[i] = Enemy{rl.Vector2{X: float32(rl.GetRandomValue(0, screenWidth-100)), Y: float32(rl.GetRandomValue(screenHeight, screenHeight+1000))}, false, true, 3}
 	}
 }
 
@@ -266,7 +267,7 @@ func (g *Game) deInit() {
 func (g *Game) update() {
 	framesCounter++
 
-	if framesCounter % 4 == 0 || framesCounter == 0 {
+	if framesCounter%4 == 0 || framesCounter == 0 {
 		enemyFrame++
 		if g.player.reloading {
 			reloadCounter++
@@ -316,7 +317,7 @@ func (g *Game) update() {
 					}
 				}
 			}
-			if g.bullet[i].rec.Y + g.bullet[i].rec.Height >= screenHeight {
+			if g.bullet[i].rec.Y+g.bullet[i].rec.Height >= screenHeight {
 				g.bullet[i].active = false
 			}
 		}
@@ -328,7 +329,7 @@ func (g *Game) update() {
 			g.enemy[i].position.Y -= float32(rl.GetRandomValue(1, int32(g.enemy[i].speed)))
 			// Respawn and decrease lives
 			if g.enemy[i].position.Y < -120 {
-				g.enemy[i].position.X = float32(rl.GetRandomValue(0, screenWidth - 100))
+				g.enemy[i].position.X = float32(rl.GetRandomValue(0, screenWidth-100))
 				g.enemy[i].position.Y = float32(rl.GetRandomValue(screenHeight+200, screenHeight+1000))
 				g.player.lives--
 			}
@@ -387,6 +388,14 @@ func updateCharRec(g *Game) {
 	}
 }
 
+func switchWeapon(g *Game, weaponIndex int) {
+	if g.gun[weaponIndex].inInventory {
+		g.player.reloading = false
+		reloadCounter = 0
+		cWeapon = weaponIndex
+	}
+}
+
 func keyCallback(g *Game) {
 	// Movement:
 	if rl.IsKeyDown(rl.KeyRight) {
@@ -423,10 +432,10 @@ func keyCallback(g *Game) {
 	if rl.IsKeyDown(rl.KeySpace) {
 		if g.gun[cWeapon].ammo > 0 && !g.player.reloading && g.gun[cWeapon].automatic {
 			firingRateCounter++
-			if firingRateCounter % g.gun[cWeapon].firingRate == 0 {
+			if firingRateCounter%g.gun[cWeapon].firingRate == 0 {
 				for i := 0; i < MaxBullets; i++ {
 					if !g.bullet[i].active {
-						g.bullet[i].rec = rl.Rectangle {X: g.player.position.X + 40, Y: g.player.position.Y + 105, Width: 5, Height: 10}
+						g.bullet[i].rec = rl.Rectangle{X: g.player.position.X + 40, Y: g.player.position.Y + 105, Width: 5, Height: 10}
 						g.bullet[i].active = true
 						g.gun[cWeapon].ammo--
 						break
@@ -448,29 +457,19 @@ func keyCallback(g *Game) {
 	}
 	// Weapon keys:
 	if rl.IsKeyPressed(rl.KeyOne) {
-		g.player.reloading = false
-		reloadCounter = 0
-		cWeapon = 0 // Armalite
+		switchWeapon(g, 0) // Armalite
 	}
 	if rl.IsKeyPressed(rl.KeyTwo) {
-		g.player.reloading = false
-		reloadCounter = 0
-		cWeapon = 1 // Galil
+		switchWeapon(g, 1) // Galil
 	}
 	if rl.IsKeyPressed(rl.KeyThree) {
-		g.player.reloading = false
-		reloadCounter = 0
-		cWeapon = 2 // Barrett
+		switchWeapon(g, 2) // Barrett
 	}
 	if rl.IsKeyPressed(rl.KeyFour) {
-		g.player.reloading = false
-		reloadCounter = 0
-		cWeapon = 3 // Groza
+		switchWeapon(g, 3) // Groza
 	}
 	if rl.IsKeyPressed(rl.KeyFive) {
-		g.player.reloading = false
-		reloadCounter = 0
-		cWeapon = 4 // M60
+		switchWeapon(g, 4) // M60
 	}
 }
 
@@ -525,7 +524,7 @@ func draw(g *Game) {
 		}
 	}
 	// Draw ammo
-	rl.DrawTexture(g.bulletTex, screenWidth - 55, screenHeight - 100, rl.RayWhite)
+	rl.DrawTexture(g.bulletTex, screenWidth-55, screenHeight-100, rl.RayWhite)
 	if !g.player.reloading {
 		if g.gun[cWeapon].ammo == 0 {
 			rl.DrawText(strconv.Itoa(g.gun[cWeapon].ammo), screenWidth-35, screenHeight-30, 20, rl.Red)
@@ -536,17 +535,17 @@ func draw(g *Game) {
 		rl.DrawText("reloading", screenWidth-100, screenHeight-30, 20, rl.Red)
 	}
 
-	rl.DrawTexture(g.gun[cWeapon].gunIcon, screenWidth - 325, screenHeight - 100, rl.White)
+	rl.DrawTexture(g.gun[cWeapon].gunIcon, screenWidth-325, screenHeight-100, rl.White)
 
 	// Game Over screen
 	if g.gameOver {
 		//rl.DrawTexture(g.deathScreen, 0, 0, rl.White)
-		rl.DrawText("Mission Failed!", screenWidth / 2 - 280, screenHeight / 2, 80, rl.Black)
-		rl.DrawText("Press Enter to retry", screenWidth / 2 - 220, screenHeight / 2 + 100, 40, rl.Violet)
+		rl.DrawText("Mission Failed!", screenWidth/2-280, screenHeight/2, 80, rl.Black)
+		rl.DrawText("Press Enter to retry", screenWidth/2-220, screenHeight/2+100, 40, rl.Violet)
 	}
 
-	rl.DrawText(strconv.Itoa(score), 20, screenHeight - 60, 40, rl.White)
-	rl.DrawText(strconv.Itoa(money) + "$", 20, 40, 40, rl.Green)
+	rl.DrawText(strconv.Itoa(score), 20, screenHeight-60, 40, rl.White)
+	rl.DrawText(strconv.Itoa(money)+"$", 20, 40, 40, rl.Green)
 	rl.DrawFPS(5, 0)
 	rl.EndDrawing()
 }
