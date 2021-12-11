@@ -1,5 +1,5 @@
 // (C) Uljas Antero Lindell 2021
-// Version 0.3 Alpha
+// Version 0.4 Alpha
 
 package main
 
@@ -378,7 +378,7 @@ func (g *Game) update() {
 				if g.enemy[i].position.Y < -120 {
 					g.enemy[i].position.X = float32(rl.GetRandomValue(0, screenWidth-100))
 					g.enemy[i].position.Y = float32(rl.GetRandomValue(screenHeight+200, screenHeight+1000))
-					g.player.lives--
+					score -= 500
 				}
 				// Collision with player
 				if !g.gameOver {
@@ -560,50 +560,58 @@ func draw(g *Game) {
 				}
 			}
 		}
+		// Draw ammo
+		rl.DrawTexture(g.bulletTex, screenWidth-55, screenHeight-100, rl.RayWhite)
+		if !g.player.reloading {
+			if g.gun[cWeapon].ammo == 0 {
+				rl.DrawText(strconv.Itoa(g.gun[cWeapon].ammo), screenWidth-35, screenHeight-30, 20, rl.Red)
+			} else {
+				rl.DrawText(strconv.Itoa(g.gun[cWeapon].ammo), screenWidth-35, screenHeight-30, 20, rl.Black)
+			}
+		} else {
+			rl.DrawText("reloading", screenWidth-100, screenHeight-30, 20, rl.Red)
+		}
+
+		rl.DrawTexture(g.gun[cWeapon].gunIcon, screenWidth-325, screenHeight-100, rl.White)
+
+		// Game Over screen
+		if g.gameOver {
+			//rl.DrawTexture(g.deathScreen, 0, 0, rl.White)
+			rl.DrawText("Mission Failed!", screenWidth/2-280, screenHeight/2, 80, rl.Black)
+			rl.DrawText("Press Enter to retry", screenWidth/2-220, screenHeight/2+100, 40, rl.Violet)
+		}
+
+		// Draw hearts
+		for i := 0; i <= g.player.lives; i++ {
+			switch i {
+			case 1:
+				rl.DrawTexture(g.heart, screenWidth-150, 0, rl.RayWhite)
+				break
+			case 2:
+				rl.DrawTexture(g.heart, screenWidth-100, 0, rl.RayWhite)
+				break
+			case 3:
+				rl.DrawTexture(g.heart, screenWidth-50, 0, rl.RayWhite)
+				break
+			default:
+				break
+			}
+		}
+
+		if score < 0 {
+			rl.DrawText(strconv.Itoa(score), 20, screenHeight-120, 40, rl.Maroon)
+		} else {
+			rl.DrawText(strconv.Itoa(score), 20, screenHeight-120, 40, rl.White)
+		}
+
+		rl.DrawText("Kills: "+strconv.Itoa(kills), 280, screenHeight-60, 40, rl.SkyBlue)
+		rl.DrawText(" / "+strconv.Itoa(killsRequired), 420, screenHeight-60, 40, rl.SkyBlue)
+		rl.DrawText(strconv.Itoa(money)+"$", 20, screenHeight-60, 40, rl.Green)
+
 	} else { // Draw shop screen
 		rl.DrawTexture(g.shopScreen, 0, 0, rl.White)
 	}
-	// Draw hearts
-	for i := 0; i <= g.player.lives; i++ {
-		switch i {
-		case 1:
-			rl.DrawTexture(g.heart, screenWidth-150, 0, rl.RayWhite)
-			break
-		case 2:
-			rl.DrawTexture(g.heart, screenWidth-100, 0, rl.RayWhite)
-			break
-		case 3:
-			rl.DrawTexture(g.heart, screenWidth-50, 0, rl.RayWhite)
-			break
-		default:
-			break
-		}
-	}
-	// Draw ammo
-	rl.DrawTexture(g.bulletTex, screenWidth-55, screenHeight-100, rl.RayWhite)
-	if !g.player.reloading {
-		if g.gun[cWeapon].ammo == 0 {
-			rl.DrawText(strconv.Itoa(g.gun[cWeapon].ammo), screenWidth-35, screenHeight-30, 20, rl.Red)
-		} else {
-			rl.DrawText(strconv.Itoa(g.gun[cWeapon].ammo), screenWidth-35, screenHeight-30, 20, rl.Black)
-		}
-	} else {
-		rl.DrawText("reloading", screenWidth-100, screenHeight-30, 20, rl.Red)
-	}
 
-	rl.DrawTexture(g.gun[cWeapon].gunIcon, screenWidth-325, screenHeight-100, rl.White)
-
-	// Game Over screen
-	if g.gameOver {
-		//rl.DrawTexture(g.deathScreen, 0, 0, rl.White)
-		rl.DrawText("Mission Failed!", screenWidth/2-280, screenHeight/2, 80, rl.Black)
-		rl.DrawText("Press Enter to retry", screenWidth/2-220, screenHeight/2+100, 40, rl.Violet)
-	}
-
-	rl.DrawText(strconv.Itoa(score), 20, screenHeight-60, 40, rl.White)
-	rl.DrawText("Kills: "+strconv.Itoa(kills), 240, screenHeight-60, 40, rl.SkyBlue)
-	rl.DrawText(" / "+strconv.Itoa(killsRequired), 380, screenHeight-60, 40, rl.SkyBlue)
-	rl.DrawText(strconv.Itoa(money)+"$", 20, 80, 40, rl.Green)
 	rl.DrawFPS(5, 0)
 	rl.EndDrawing()
 }
