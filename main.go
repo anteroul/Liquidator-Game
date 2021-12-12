@@ -147,7 +147,7 @@ func main() {
 	Setup() // Game Settings
 	// Create window and set target FPS
 	rl.InitWindow(screenWidth, screenHeight, "The Liquidator")
-	rl.SetTargetFPS(60)
+	rl.SetTargetFPS(int32(rl.GetMonitorRefreshRate(rl.GetCurrentMonitor())))
 
 	if enableFullScreen {
 		rl.ToggleFullscreen()
@@ -224,11 +224,6 @@ func main() {
 
 		game.update() // Keep the game running
 
-		/*
-			TODO: Implement a function/scene for a shop with the functionality of purchasing weapons with your money
-			TODO: Implement a money variable and the functionality for it
-		*/
-
 	}
 	game.deInit() // De-initialize everything and close window
 }
@@ -302,12 +297,11 @@ func (g *Game) update() {
 
 		framesCounter++
 
-		if kills == killsRequired {
+		if kills == killsRequired && g.player.lives > 0 {
 			for i := 0; i < 5; i++ {
 				g.gun[i].ammo = g.gun[i].maxAmmo
 			}
 			g.player.reloading = false
-			g.player.lives = PlayerMaxLife
 			kills = 0
 			wave++
 			killsRequired = GetEnemies()
@@ -347,10 +341,7 @@ func (g *Game) update() {
 							if !g.gun[cWeapon].armourPiercing {
 								g.bullet[i].active = false
 							}
-							rl.PlaySoundMulti(sfxDeath)
-							score += 100
-							money += 50
-							kills++
+							tangoDown()
 						}
 						if g.enemy[j].position.Y < 100 {
 							if rl.CheckCollisionPointRec(rl.Vector2{X: g.bullet[i].rec.X, Y: g.bullet[i].rec.Y - 75}, rl.Rectangle{X: g.enemy[j].position.X, Y: g.enemy[j].position.Y, Width: 90, Height: 40}) {
@@ -358,10 +349,7 @@ func (g *Game) update() {
 								if !g.gun[cWeapon].armourPiercing {
 									g.bullet[i].active = false
 								}
-								rl.PlaySoundMulti(sfxDeath)
-								score += 100
-								money += 50
-								kills++
+								tangoDown()
 							}
 						}
 					}
@@ -380,13 +368,16 @@ func (g *Game) update() {
 				if g.enemy[i].position.Y < -120 {
 					g.enemy[i].position.X = float32(rl.GetRandomValue(0, screenWidth-100))
 					g.enemy[i].position.Y = float32(rl.GetRandomValue(screenHeight+200, screenHeight+1000))
-					score -= 500
+					if !g.gameOver {
+						score -= 500
+					}
 				}
 				// Collision with player
 				if !g.gameOver {
 					if rl.CheckCollisionRecs(rl.Rectangle{X: g.enemy[i].position.X, Y: g.enemy[i].position.Y, Width: 90, Height: 40}, rl.Rectangle{X: g.player.position.X, Y: g.player.position.Y, Width: 90, Height: 40}) {
 						g.enemy[i].active = false
 						g.player.lives--
+						tangoDown()
 					}
 				}
 				// Collision with barbed wire
@@ -395,12 +386,14 @@ func (g *Game) update() {
 				} else {
 					g.enemy[i].speed = 3
 				}
-			} else { // TODO: Fix the bug with splatter animations
+			} else {
 				g.splatterRec.X = float32(enemyFrame * g.enemyTexture.Width / 4)
 				if enemyFrame >= 4 {
 					g.enemy[i].position.X = float32(rl.GetRandomValue(0, screenWidth-100))
 					g.enemy[i].position.Y = float32(rl.GetRandomValue(screenHeight+200, screenHeight+1000))
-					g.enemy[i].active = true
+					if killsRequired-kills >= MaxEnemies {
+						g.enemy[i].active = true
+					}
 				}
 			}
 			updateEnemyRec(g, g.enemy[i])
@@ -415,6 +408,16 @@ func (g *Game) update() {
 
 	draw(g) // Display graphics
 
+}
+
+func tangoDown() {
+	rl.PlaySoundMulti(sfxDeath)
+	score += 100
+	if score >= 0 {
+		money += 50
+	}
+	kills++
+	enemyFrame = 0
 }
 
 func updateEnemyRec(g *Game, enemy Enemy) {
