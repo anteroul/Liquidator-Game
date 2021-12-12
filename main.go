@@ -1,13 +1,11 @@
 // (C) Uljas Antero Lindell 2021
-// Version 0.4 Alpha
+// Version 0.5 Alpha
 
 package main
 
 import (
 	"github.com/gen2brain/raylib-go/raylib"
-	"math/rand"
 	"strconv"
-	"time"
 )
 
 const screenWidth = 1280
@@ -92,11 +90,6 @@ type Game struct {
 	enemyRec          rl.Rectangle
 	splatterRec       rl.Rectangle
 	barbedWire        rl.Rectangle
-}
-
-func RandBool() bool {
-	rand.Seed(time.Now().UnixNano())
-	return rand.Intn(2) == 1
 }
 
 func GetEnemies() int {
@@ -400,7 +393,7 @@ func (g *Game) update() {
 		}
 		// Update controls if player is alive
 		if !g.gameOver {
-			keyCallback(g) // Game controls
+			go keyCallback(g) // Game controls
 		}
 	} else {
 		displayShopScreen(g)
@@ -466,6 +459,9 @@ func keyCallback(g *Game) {
 			g.player.position.X -= g.player.speed
 		}
 		updateCharRec(g)
+	}
+	if rl.IsKeyUp(rl.KeyLeft) && rl.IsKeyUp(rl.KeyRight) {
+		g.playerRec.X = 0
 	}
 	// Semi-auto:
 	if rl.IsKeyPressed(rl.KeySpace) {
