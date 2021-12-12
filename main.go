@@ -100,7 +100,7 @@ func RandBool() bool {
 }
 
 func GetEnemies() int {
-	var enemies = 19 + wave
+	var enemies = 20 * wave
 	return enemies
 }
 
@@ -201,6 +201,8 @@ func main() {
 				kills = 0
 				score = 0
 				money = 0
+				wave = 1
+				killsRequired = GetEnemies()
 				game.gameOver = false
 				// Initialize player
 				game.player.position = rl.NewVector2(float32(screenWidth)/2, 40)
@@ -374,7 +376,7 @@ func (g *Game) update() {
 		for i := 0; i < MaxEnemies; i++ {
 			if g.enemy[i].active {
 				g.enemy[i].position.Y -= float32(rl.GetRandomValue(1, int32(g.enemy[i].speed)))
-				// Respawn and decrease lives
+				// Crossing the border
 				if g.enemy[i].position.Y < -120 {
 					g.enemy[i].position.X = float32(rl.GetRandomValue(0, screenWidth-100))
 					g.enemy[i].position.Y = float32(rl.GetRandomValue(screenHeight+200, screenHeight+1000))
