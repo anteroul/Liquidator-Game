@@ -1,5 +1,5 @@
 // (C) Uljas Antero Lindell 2021
-// Version 0.5 Alpha
+// Version 0.6 Alpha
 
 package main
 
@@ -62,6 +62,13 @@ type Gun struct {
 	ammo           int
 	maxAmmo        int
 	gunIcon        rl.Texture2D
+	price          int
+}
+
+type Button struct {
+	size rl.Vector2
+	icon *rl.Texture2D
+	gun  *Gun
 }
 
 type Game struct {
@@ -71,6 +78,7 @@ type Game struct {
 	enemy             [MaxEnemies]Enemy
 	bullet            [MaxBullets]Bullet
 	gun               [5]Gun
+	button            [4]Button
 	char              rl.Texture2D
 	dead              rl.Texture2D
 	heart             rl.Texture2D
@@ -168,11 +176,16 @@ func main() {
 	game.splatterRec = rl.Rectangle{Width: float32(game.splatter.Width / 4), Height: float32(game.splatter.Height)}
 	game.barbedWire = rl.Rectangle{X: 0, Y: 100, Width: screenWidth, Height: 80}
 
-	game.gun[0] = Gun{"AR-15", false, false, true, 6, 30, 30, game.armalite}
-	game.gun[1] = Gun{"Galil", true, false, false, 6, 30, 30, game.galil}
-	game.gun[2] = Gun{"Barrett", false, true, false, 6, 20, 20, game.barrett}
-	game.gun[3] = Gun{"Groza", true, true, false, 4, 20, 20, game.groza}
-	game.gun[4] = Gun{"M60", true, false, false, 8, 100, 100, game.machineGun}
+	game.gun[0] = Gun{"AR-15", false, false, true, 6, 30, 30, game.armalite, 0}
+	game.gun[1] = Gun{"Galil", true, false, false, 6, 30, 30, game.galil, 3000}
+	game.gun[2] = Gun{"Barrett", false, true, false, 6, 20, 20, game.barrett, 5000}
+	game.gun[3] = Gun{"Groza", true, true, false, 4, 20, 20, game.groza, 12500}
+	game.gun[4] = Gun{"M60", true, false, false, 8, 100, 100, game.machineGun, 25000}
+
+	game.button[0] = Button{size: rl.Vector2{X: screenWidth / 5, Y: screenHeight / 7}, icon: &game.galil, gun: &game.gun[1]}
+	game.button[1] = Button{size: rl.Vector2{X: screenWidth / 5, Y: screenHeight / 7}, icon: &game.barrett, gun: &game.gun[2]}
+	game.button[2] = Button{size: rl.Vector2{X: screenWidth / 5, Y: screenHeight / 7}, icon: &game.groza, gun: &game.gun[3]}
+	game.button[3] = Button{size: rl.Vector2{X: screenWidth / 5, Y: screenHeight / 7}, icon: &game.machineGun, gun: &game.gun[4]}
 
 	for i := 0; i < 5; i++ {
 		game.gun[i].ammo = game.gun[i].maxAmmo
@@ -229,7 +242,9 @@ func Reset(game *Game) {
 	}
 	for i := 0; i < 5; i++ {
 		game.gun[i].ammo = game.gun[i].maxAmmo
+		game.gun[i].inInventory = false
 	}
+	game.gun[0].inInventory = true
 }
 
 func (g *Game) Init() {
@@ -610,12 +625,36 @@ func draw(g *Game) {
 
 		rl.DrawText("Kills: "+strconv.Itoa(kills), 280, screenHeight-60, 40, rl.SkyBlue)
 		rl.DrawText(" / "+strconv.Itoa(killsRequired), 420, screenHeight-60, 40, rl.SkyBlue)
-		rl.DrawText(strconv.Itoa(money)+"$", 20, screenHeight-60, 40, rl.Green)
 
 	} else { // Draw shop screen
 		rl.DrawTexture(g.shopScreen, 0, 0, rl.White)
+
+		// Draw UI buttons and their functionality implemented (band-aid solution, I know)
+		for i := 0; i < 4; i++ {
+			if !g.gun[i+1].inInventory {
+				rl.DrawRectangle(int32(screenWidth/4*i+40), screenHeight/3*2, int32(g.button[i].size.X), int32(g.button[i].size.Y+15), rl.DarkGray)
+				rl.DrawTexture(*g.button[i].icon, int32(screenWidth/4*i+45), screenHeight/3*2, rl.Black)
+			}
+			if onClickEvent(&rl.Rectangle{X: float32(int32(screenWidth/4*i + 40)), Y: screenHeight / 3 * 2, Width: float32(int32(g.button[i].size.X)), Height: float32(int32(g.button[i].size.Y + 15))}) {
+				if money >= g.gun[i+1].price && !g.gun[i+1].inInventory {
+					money -= g.gun[i+1].price
+					g.gun[i+1].inInventory = true
+				}
+			}
+		}
 	}
+
+	rl.DrawText(strconv.Itoa(money)+"$", 20, screenHeight-60, 40, rl.Green)
 
 	rl.DrawFPS(5, 0)
 	rl.EndDrawing()
+}
+
+// An event listener
+func onClickEvent(rectangle *rl.Rectangle) bool {
+	if rl.CheckCollisionPointRec(rl.GetMousePosition(), *rectangle) && rl.IsMouseButtonPressed(0) {
+		return true
+	} else {
+		return false
+	}
 }
