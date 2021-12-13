@@ -1,5 +1,5 @@
 // (C) Uljas Antero Lindell 2021
-// Version 0.6 Alpha
+// Version 0.6.5 Alpha
 
 package main
 
@@ -245,6 +245,7 @@ func Reset(game *Game) {
 		game.gun[i].inInventory = false
 	}
 	game.gun[0].inInventory = true
+	cWeapon = 0
 }
 
 func (g *Game) Init() {
