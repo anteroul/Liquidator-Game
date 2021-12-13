@@ -188,30 +188,9 @@ func main() {
 
 	for !rl.WindowShouldClose() { // Game loop
 		// Reset game when the game is over
-		// TODO: Create a ResetGame() function (optional), recalling the NewGame() function makes textures to disappear. The bug was fixed with this temporary solution.
 		if game.gameOver {
 			if rl.IsKeyPressed(rl.KeyEnter) {
-				kills = 0
-				score = 0
-				money = 0
-				wave = 1
-				killsRequired = GetEnemies()
-				game.gameOver = false
-				// Initialize player
-				game.player.position = rl.NewVector2(float32(screenWidth)/2, 40)
-				game.player.lives = PlayerMaxLife
-				game.player.speed = 4.5
-				// Initialize bullets
-				for i := 0; i < MaxBullets; i++ {
-					game.bullet[i] = Bullet{rec: rl.Rectangle{X: game.player.position.X + 40, Y: game.player.position.Y + 105, Width: 5, Height: 10}, speed: rl.Vector2{Y: 15}, active: false, Color: rl.Yellow}
-				}
-				// Initialize enemies
-				for i := 0; i < MaxEnemies; i++ {
-					game.enemy[i] = Enemy{rl.Vector2{X: float32(rl.GetRandomValue(0, screenWidth-100)), Y: float32(rl.GetRandomValue(screenHeight, screenHeight+1000))}, false, true, 3}
-				}
-				for i := 0; i < 5; i++ {
-					game.gun[i].ammo = game.gun[i].maxAmmo
-				}
+				Reset(&game)
 			}
 		}
 
@@ -227,6 +206,30 @@ func NewGame() (g Game) {
 	g.gameOver = false
 	g.Init()
 	return
+}
+
+func Reset(game *Game) {
+	kills = 0
+	score = 0
+	money = 0
+	wave = 1
+	killsRequired = GetEnemies()
+	game.gameOver = false
+	// Initialize player
+	game.player.position = rl.NewVector2(float32(screenWidth)/2, 40)
+	game.player.lives = PlayerMaxLife
+	game.player.speed = 4.5
+	// Initialize bullets
+	for i := 0; i < MaxBullets; i++ {
+		game.bullet[i] = Bullet{rec: rl.Rectangle{X: game.player.position.X + 40, Y: game.player.position.Y + 105, Width: 5, Height: 10}, speed: rl.Vector2{Y: 15}, active: false, Color: rl.Yellow}
+	}
+	// Initialize enemies
+	for i := 0; i < MaxEnemies; i++ {
+		game.enemy[i] = Enemy{rl.Vector2{X: float32(rl.GetRandomValue(0, screenWidth-100)), Y: float32(rl.GetRandomValue(screenHeight, screenHeight+1000))}, false, true, 3}
+	}
+	for i := 0; i < 5; i++ {
+		game.gun[i].ammo = game.gun[i].maxAmmo
+	}
 }
 
 func (g *Game) Init() {
@@ -389,7 +392,7 @@ func (g *Game) update() {
 					}
 				}
 			}
-			updateEnemyRec(g, g.enemy[i])
+			go updateEnemyRec(g, g.enemy[i])
 		}
 		// Update controls if player is alive
 		if !g.gameOver {
