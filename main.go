@@ -644,7 +644,7 @@ func draw(g *Game) {
 				}
 			}
 		}
-		rl.DrawText("Press enter to exit shop", screenWidth/3.5, screenHeight*0.9, 40, rl.SkyBlue)
+		rl.DrawText("Press enter to exit shop", screenWidth/3, screenHeight*0.9, 40, rl.SkyBlue)
 	}
 
 	rl.DrawText(strconv.Itoa(money)+"$", 20, screenHeight-60, 40, rl.Green)
