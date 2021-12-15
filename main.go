@@ -1,5 +1,5 @@
 // (C) Uljas Antero Lindell 2021
-// Version 0.7 Alpha
+// Version 0.7.2 Alpha
 
 package main
 
@@ -206,7 +206,7 @@ func main() {
 				Reset(&game)
 			}
 		}
-
+		specialKeyCallback(&game)
 		game.update() // Keep the game running
 
 	}
@@ -307,112 +307,115 @@ func (g *Game) update() {
 
 	if !inShop {
 
-		framesCounter++
+		if !g.pause {
 
-		if kills == killsRequired && g.player.lives > 0 {
-			for i := 0; i < 5; i++ {
-				g.gun[i].ammo = g.gun[i].maxAmmo
+			framesCounter++
+
+			if kills == killsRequired && g.player.lives > 0 {
+				for i := 0; i < 5; i++ {
+					g.gun[i].ammo = g.gun[i].maxAmmo
+				}
+				g.player.reloading = false
+				kills = 0
+				wave++
+				killsRequired = GetEnemies()
+				inShop = true
 			}
-			g.player.reloading = false
-			kills = 0
-			wave++
-			killsRequired = GetEnemies()
-			inShop = true
-		}
 
-		if framesCounter%4 == 0 || framesCounter == 0 {
-			enemyFrame++
-			if g.player.reloading {
-				reloadCounter++
+			if framesCounter%4 == 0 || framesCounter == 0 {
+				enemyFrame++
+				if g.player.reloading {
+					reloadCounter++
+				}
+				if enemyFrame > 4 {
+					enemyFrame = 0
+				}
 			}
-			if enemyFrame > 4 {
-				enemyFrame = 0
+
+			// Reload logic
+			if reloadCounter == 30 {
+				g.player.reloading = false
+				g.gun[cWeapon].ammo = g.gun[cWeapon].maxAmmo
+				reloadCounter = 0
 			}
-		}
 
-		// Reload logic
-		if reloadCounter == 30 {
-			g.player.reloading = false
-			g.gun[cWeapon].ammo = g.gun[cWeapon].maxAmmo
-			reloadCounter = 0
-		}
-
-		// Game over logic
-		if g.player.lives <= 0 {
-			g.gameOver = true
-		}
-		// Shoot logic
-		for i := 0; i < MaxBullets; i++ {
-			if g.bullet[i].active {
-				g.bullet[i].rec.Y += g.bullet[i].speed.Y
-				// Collision with enemy
-				for j := 0; j < MaxEnemies; j++ {
-					if g.enemy[j].active && !g.gameOver {
-						if rl.CheckCollisionRecs(g.bullet[i].rec, rl.Rectangle{X: g.enemy[j].position.X, Y: g.enemy[j].position.Y, Width: 90, Height: 40}) {
-							g.enemy[j].active = false
-							if !g.gun[cWeapon].armourPiercing {
-								g.bullet[i].active = false
-							}
-							tangoDown()
-						}
-						if g.enemy[j].position.Y < 100 {
-							if rl.CheckCollisionPointRec(rl.Vector2{X: g.bullet[i].rec.X, Y: g.bullet[i].rec.Y - 75}, rl.Rectangle{X: g.enemy[j].position.X, Y: g.enemy[j].position.Y, Width: 90, Height: 40}) {
+			// Game over logic
+			if g.player.lives <= 0 {
+				g.gameOver = true
+			}
+			// Shoot logic
+			for i := 0; i < MaxBullets; i++ {
+				if g.bullet[i].active {
+					g.bullet[i].rec.Y += g.bullet[i].speed.Y
+					// Collision with enemy
+					for j := 0; j < MaxEnemies; j++ {
+						if g.enemy[j].active && !g.gameOver {
+							if rl.CheckCollisionRecs(g.bullet[i].rec, rl.Rectangle{X: g.enemy[j].position.X, Y: g.enemy[j].position.Y, Width: 90, Height: 40}) {
 								g.enemy[j].active = false
 								if !g.gun[cWeapon].armourPiercing {
 									g.bullet[i].active = false
 								}
 								tangoDown()
 							}
+							if g.enemy[j].position.Y < 100 {
+								if rl.CheckCollisionPointRec(rl.Vector2{X: g.bullet[i].rec.X, Y: g.bullet[i].rec.Y - 75}, rl.Rectangle{X: g.enemy[j].position.X, Y: g.enemy[j].position.Y, Width: 90, Height: 40}) {
+									g.enemy[j].active = false
+									if !g.gun[cWeapon].armourPiercing {
+										g.bullet[i].active = false
+									}
+									tangoDown()
+								}
+							}
+						}
+					}
+					if g.bullet[i].rec.Y+g.bullet[i].rec.Height >= screenHeight {
+						g.bullet[i].active = false
+					}
+				}
+			}
+			// Enemy behaviour
+			// TODO: Shooting for armed enemies (armed enemies are currently disabled)
+			for i := 0; i < MaxEnemies; i++ {
+				if g.enemy[i].active {
+					g.enemy[i].position.Y -= float32(rl.GetRandomValue(1, int32(g.enemy[i].speed)))
+					// Crossing the border
+					if g.enemy[i].position.Y < -120 {
+						g.enemy[i].position.X = float32(rl.GetRandomValue(0, screenWidth-100))
+						g.enemy[i].position.Y = float32(rl.GetRandomValue(screenHeight+200, screenHeight+1000))
+						if !g.gameOver {
+							score -= 500
+						}
+					}
+					// Collision with player
+					if !g.gameOver {
+						if rl.CheckCollisionRecs(rl.Rectangle{X: g.enemy[i].position.X, Y: g.enemy[i].position.Y, Width: 90, Height: 40}, rl.Rectangle{X: g.player.position.X, Y: g.player.position.Y, Width: 90, Height: 40}) {
+							g.enemy[i].active = false
+							g.player.lives--
+							tangoDown()
+						}
+					}
+					// Collision with barbed wire
+					if rl.CheckCollisionRecs(rl.Rectangle{X: g.enemy[i].position.X, Y: g.enemy[i].position.Y, Width: 90, Height: 40}, g.barbedWire) {
+						g.enemy[i].speed = 0.3
+					} else {
+						g.enemy[i].speed = 3
+					}
+				} else {
+					g.splatterRec.X = float32(enemyFrame * g.enemyTexture.Width / 4)
+					if enemyFrame >= 4 {
+						g.enemy[i].position.X = float32(rl.GetRandomValue(0, screenWidth-100))
+						g.enemy[i].position.Y = float32(rl.GetRandomValue(screenHeight+200, screenHeight+1000))
+						if killsRequired-kills >= MaxEnemies {
+							g.enemy[i].active = true
 						}
 					}
 				}
-				if g.bullet[i].rec.Y+g.bullet[i].rec.Height >= screenHeight {
-					g.bullet[i].active = false
-				}
+				go updateEnemyRec(g, g.enemy[i])
 			}
-		}
-		// Enemy behaviour
-		// TODO: Shooting for armed enemies (armed enemies are currently disabled)
-		for i := 0; i < MaxEnemies; i++ {
-			if g.enemy[i].active {
-				g.enemy[i].position.Y -= float32(rl.GetRandomValue(1, int32(g.enemy[i].speed)))
-				// Crossing the border
-				if g.enemy[i].position.Y < -120 {
-					g.enemy[i].position.X = float32(rl.GetRandomValue(0, screenWidth-100))
-					g.enemy[i].position.Y = float32(rl.GetRandomValue(screenHeight+200, screenHeight+1000))
-					if !g.gameOver {
-						score -= 500
-					}
-				}
-				// Collision with player
-				if !g.gameOver {
-					if rl.CheckCollisionRecs(rl.Rectangle{X: g.enemy[i].position.X, Y: g.enemy[i].position.Y, Width: 90, Height: 40}, rl.Rectangle{X: g.player.position.X, Y: g.player.position.Y, Width: 90, Height: 40}) {
-						g.enemy[i].active = false
-						g.player.lives--
-						tangoDown()
-					}
-				}
-				// Collision with barbed wire
-				if rl.CheckCollisionRecs(rl.Rectangle{X: g.enemy[i].position.X, Y: g.enemy[i].position.Y, Width: 90, Height: 40}, g.barbedWire) {
-					g.enemy[i].speed = 0.3
-				} else {
-					g.enemy[i].speed = 3
-				}
-			} else {
-				g.splatterRec.X = float32(enemyFrame * g.enemyTexture.Width / 4)
-				if enemyFrame >= 4 {
-					g.enemy[i].position.X = float32(rl.GetRandomValue(0, screenWidth-100))
-					g.enemy[i].position.Y = float32(rl.GetRandomValue(screenHeight+200, screenHeight+1000))
-					if killsRequired-kills >= MaxEnemies {
-						g.enemy[i].active = true
-					}
-				}
+			// Update controls if player is alive
+			if !g.gameOver {
+				keyCallback(g) // Game controls
 			}
-			go updateEnemyRec(g, g.enemy[i])
-		}
-		// Update controls if player is alive
-		if !g.gameOver {
-			go keyCallback(g) // Game controls
 		}
 	} else {
 		displayShopScreen(g)
@@ -659,5 +662,25 @@ func onClickEvent(rectangle *rl.Rectangle) bool {
 		return true
 	} else {
 		return false
+	}
+}
+
+// Special keyboard events
+func specialKeyCallback(g *Game) {
+	// Pause game
+	if rl.IsKeyPressed(rl.KeyP) {
+		if !g.pause {
+			g.pause = true
+		} else {
+			g.pause = false
+		}
+	}
+	// Enable/Disable frame limiter
+	if rl.IsKeyPressed(rl.KeyF1) {
+		if rl.GetFPS() > 60 {
+			rl.SetTargetFPS(60)
+		} else {
+			rl.SetTargetFPS(int32(rl.GetMonitorRefreshRate(rl.GetCurrentMonitor())))
+		}
 	}
 }
