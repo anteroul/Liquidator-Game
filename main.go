@@ -1,5 +1,5 @@
 // (C) Uljas Antero Lindell 2021
-// Version 0.6.5 Alpha
+// Version 0.7 Alpha
 
 package main
 
@@ -635,6 +635,7 @@ func draw(g *Game) {
 			if !g.gun[i+1].inInventory {
 				rl.DrawRectangle(int32(screenWidth/4*i+40), screenHeight/3*2, int32(g.button[i].size.X), int32(g.button[i].size.Y+15), rl.DarkGray)
 				rl.DrawTexture(*g.button[i].icon, int32(screenWidth/4*i+45), screenHeight/3*2, rl.Black)
+				rl.DrawText(g.gun[i+1].name+" $"+strconv.Itoa(g.gun[i+1].price), int32(screenWidth/4*i+60), screenHeight*0.75, 25, rl.Green)
 			}
 			if onClickEvent(&rl.Rectangle{X: float32(int32(screenWidth/4*i + 40)), Y: screenHeight / 3 * 2, Width: float32(int32(g.button[i].size.X)), Height: float32(int32(g.button[i].size.Y + 15))}) {
 				if money >= g.gun[i+1].price && !g.gun[i+1].inInventory {
@@ -643,6 +644,7 @@ func draw(g *Game) {
 				}
 			}
 		}
+		rl.DrawText("Press enter to exit shop", screenWidth/3.5, screenHeight*0.9, 40, rl.SkyBlue)
 	}
 
 	rl.DrawText(strconv.Itoa(money)+"$", 20, screenHeight-60, 40, rl.Green)
