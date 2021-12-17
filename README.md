@@ -11,7 +11,7 @@ An unfinished game project made with Raylib and Go.
 - Esc = Exit game
 
 ### Credits:
-##### Valiant (Programming & Game Design)
-##### xXAshuraXx (Textures)
-##### Jarpdzonson (Textures)
-##### SuperPhat (Sound FX)
+- Valiant (Programming & Game Design)
+- xXAshuraXx (Textures)
+- Jarpdzonson (Textures)
+- SuperPhat (Sound FX)
