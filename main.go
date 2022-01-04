@@ -1,5 +1,5 @@
 // (C) Uljas Antero Lindell 2021
-// Version 0.7.2 Alpha
+// Version 0.7.3 Alpha
 
 package main
 
@@ -109,7 +109,7 @@ func GetEnemies() int {
 
 func RandBool() bool {
 	rand.Seed(time.Now().UnixNano())
-	return rand.Intn(8) == 1
+	return rand.Intn(128) == 1
 }
 
 func Setup() {
