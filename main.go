@@ -5,7 +5,9 @@ package main
 
 import (
 	"github.com/gen2brain/raylib-go/raylib"
+	"math/rand"
 	"strconv"
+	"time"
 )
 
 const screenWidth = 1280
@@ -103,6 +105,11 @@ type Game struct {
 func GetEnemies() int {
 	var enemies = 20 * wave
 	return enemies
+}
+
+func RandBool() bool {
+	rand.Seed(time.Now().UnixNano())
+	return rand.Intn(8) == 1
 }
 
 func Setup() {
@@ -214,7 +221,7 @@ func main() {
 }
 
 func NewGame() (g Game) {
-	money = 0
+	money = 1000
 	score = 0
 	g.gameOver = false
 	g.Init()
@@ -224,7 +231,7 @@ func NewGame() (g Game) {
 func Reset(game *Game) {
 	kills = 0
 	score = 0
-	money = 0
+	money = 1000
 	wave = 1
 	killsRequired = GetEnemies()
 	game.gameOver = false
@@ -355,7 +362,7 @@ func (g *Game) update() {
 								if !g.gun[cWeapon].armourPiercing {
 									g.bullet[i].active = false
 								}
-								tangoDown()
+								tangoDown(g)
 							}
 							if g.enemy[j].position.Y < 100 {
 								if rl.CheckCollisionPointRec(rl.Vector2{X: g.bullet[i].rec.X, Y: g.bullet[i].rec.Y - 75}, rl.Rectangle{X: g.enemy[j].position.X, Y: g.enemy[j].position.Y, Width: 90, Height: 40}) {
@@ -363,7 +370,7 @@ func (g *Game) update() {
 									if !g.gun[cWeapon].armourPiercing {
 										g.bullet[i].active = false
 									}
-									tangoDown()
+									tangoDown(g)
 								}
 							}
 						}
@@ -391,7 +398,7 @@ func (g *Game) update() {
 						if rl.CheckCollisionRecs(rl.Rectangle{X: g.enemy[i].position.X, Y: g.enemy[i].position.Y, Width: 90, Height: 40}, rl.Rectangle{X: g.player.position.X, Y: g.player.position.Y, Width: 90, Height: 40}) {
 							g.enemy[i].active = false
 							g.player.lives--
-							tangoDown()
+							tangoDown(g)
 						}
 					}
 					// Collision with barbed wire
@@ -425,7 +432,7 @@ func (g *Game) update() {
 
 }
 
-func tangoDown() {
+func tangoDown(g *Game) {
 	rl.PlaySoundMulti(sfxDeath)
 	score += 100
 	if score >= 0 {
@@ -433,6 +440,9 @@ func tangoDown() {
 	}
 	kills++
 	enemyFrame = 0
+	if RandBool() && g.player.lives != PlayerMaxLife {
+		g.player.lives++
+	}
 }
 
 func updateEnemyRec(g *Game, enemy Enemy) {
