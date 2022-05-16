@@ -1,0 +1,26 @@
+<component name="InspectionProjectProfileManager">
+  <profile version="1.0">
+    <option name="myName" value="Project Default" />
+    <option name="scopesOrder">
+      <list>
+        <option value="All Changed Files" />
+        <option value="Generated Files" />
+        <option value="Open Files" />
+        <option value="Project Files" />
+        <option value="Scratches and Consoles" />
+        <option value="Tests" />
+      </list>
+    </option>
+    <inspection_tool class="GoUnusedCallResult" enabled="true" level="WARNING" enabled_by_default="true">
+      <functions>
+        <function importPath="errors" name="New" />
+        <function importPath="fmt" name="Sprintf" />
+        <function importPath="fmt" name="Sprint" />
+        <function importPath="sort" name="Reverse" />
+      </functions>
+    </inspection_tool>
+    <inspection_tool class="VgoUnusedDependency" enabled="true" level="WEAK WARNING" enabled_by_default="true">
+      <scope name="Project Files" level="WARNING" enabled="false" />
+    </inspection_tool>
+  </profile>
+</component>

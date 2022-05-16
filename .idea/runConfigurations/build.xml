@@ -1,6 +1,0 @@
-<component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="build" type="CompoundRunConfigurationType">
-    <toRun name="go build Liquidator-Game main.go" type="GoApplicationRunConfiguration" />
-    <method v="2" />
-  </configuration>
-</component>
