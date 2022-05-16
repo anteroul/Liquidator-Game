@@ -1,0 +1,14 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="Liquidator" type="GoApplicationRunConfiguration" factoryName="Go Application">
+    <module name="Liquidator" />
+    <working_directory value="$PROJECT_DIR$" />
+    <kind value="DIRECTORY" />
+    <package value="Liquidator-Game/package/main" />
+    <directory value="$PROJECT_DIR$" />
+    <filePath value="$PROJECT_DIR$/../Liquidator-Game|$PROJECT_DIR$/game.go|$PROJECT_DIR$/main.go|$PROJECT_DIR$/globals.go" />
+    <output_directory value="$PROJECT_DIR$" />
+    <redirect_input value="true" />
+    <input_file value="$PROJECT_DIR$/main.go" />
+    <method v="2" />
+  </configuration>
+</component>
