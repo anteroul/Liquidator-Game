@@ -1,7 +1,6 @@
-// (C) Uljas Antero Lindell 2021
-// Version 0.7.3 Alpha
+// Version 0.7.5 Alpha
 
-package game
+package main
 
 import (
 	rl "github.com/gen2brain/raylib-go/raylib"

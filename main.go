@@ -1,11 +1,11 @@
-package game
+package main
 
 import (
 	"fmt"
 	rl "github.com/gen2brain/raylib-go/raylib"
 )
 
-func Main() {
+func main() {
 	Setup() // Game Settings
 	LaunchGame()
 	if !rl.WindowShouldClose() && rl.IsWindowReady() {
