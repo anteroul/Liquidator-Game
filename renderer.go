@@ -90,12 +90,11 @@ func draw(g *Game) {
 	} else { // Draw shop screen
 		rl.DrawTexture(g.shopScreen, 0, 0, rl.White)
 
-		// Draw UI buttons and their functionality implemented (band-aid solution, I know)
-		for i := 0; i < 4; i++ {
+		for i := 0; i < Guns; i++ {
 			if !g.gun[i+1].inInventory {
 				rl.DrawRectangle(int32(screenWidth/4*i+40), screenHeight/3*2, int32(g.button[i].size.X), int32(g.button[i].size.Y+15), rl.DarkGray)
 				rl.DrawTexture(*g.button[i].icon, int32(screenWidth/4*i+45), screenHeight/3*2, rl.Black)
-				rl.DrawText(g.gun[i+1].name+" $"+strconv.Itoa(g.gun[i+1].price), int32(screenWidth/4*i+60), screenHeight*0.75, 25, rl.Green)
+				rl.DrawText(g.gun[i+1].name+" $"+strconv.Itoa(g.gun[i+1].price), int32(screenWidth/4*i+60), screenHeight*0.8, 25, rl.Green)
 			}
 		}
 		rl.DrawText("Press enter to exit shop", screenWidth/3, screenHeight*0.9, 40, rl.SkyBlue)

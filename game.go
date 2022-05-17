@@ -1,4 +1,4 @@
-// Version 0.7.5 Alpha
+// Version 0.8 Alpha
 
 package main
 
@@ -60,7 +60,7 @@ func LaunchGame() {
 	game.button[2] = Button{size: rl.Vector2{X: screenWidth / 5, Y: screenHeight / 7}, icon: &game.groza, gun: &game.gun[3]}
 	game.button[3] = Button{size: rl.Vector2{X: screenWidth / 5, Y: screenHeight / 7}, icon: &game.machineGun, gun: &game.gun[4]}
 
-	for i := 0; i < 5; i++ {
+	for i := 0; i < Guns; i++ {
 		game.gun[i].ammo = game.gun[i].maxAmmo
 	}
 
@@ -113,7 +113,7 @@ func Reset(game *Game) {
 	for i := 0; i < MaxEnemies; i++ {
 		game.enemy[i] = Enemy{rl.Vector2{X: float32(rl.GetRandomValue(0, screenWidth-100)), Y: float32(rl.GetRandomValue(screenHeight, screenHeight+1000))}, false, true, 3}
 	}
-	for i := 0; i < 5; i++ {
+	for i := 0; i < Guns; i++ {
 		game.gun[i].ammo = game.gun[i].maxAmmo
 		game.gun[i].inInventory = false
 	}
@@ -163,113 +163,109 @@ func (g *Game) deInit() {
 
 func (g *Game) update() {
 
-	if !inShop {
+	if !g.pause {
 
-		if !g.pause {
+		framesCounter++
 
-			framesCounter++
+		if kills >= killsRequired && g.player.lives > 0 {
+			enterShopScreen(g)
+		}
 
-			if kills >= killsRequired && g.player.lives > 0 {
-				inShop = true
+		if framesCounter%4 == 0 || framesCounter == 0 {
+			enemyFrame++
+			if g.player.reloading {
+				reloadCounter++
 			}
-
-			if framesCounter%4 == 0 || framesCounter == 0 {
-				enemyFrame++
-				if g.player.reloading {
-					reloadCounter++
-				}
-				if enemyFrame > 4 {
-					enemyFrame = 0
-				}
+			if enemyFrame > 4 {
+				enemyFrame = 0
 			}
+		}
 
-			// Reload logic
-			if reloadCounter == 30 {
-				g.player.reloading = false
-				g.gun[cWeapon].ammo = g.gun[cWeapon].maxAmmo
-				reloadCounter = 0
-			}
+		// Reload logic
+		if reloadCounter == 30 {
+			g.player.reloading = false
+			g.gun[cWeapon].ammo = g.gun[cWeapon].maxAmmo
+			reloadCounter = 0
+		}
 
-			// Game over logic
-			if g.player.lives <= 0 {
-				g.gameOver = true
-			}
-			// Shoot logic
-			for i := 0; i < MaxBullets; i++ {
-				if g.bullet[i].active {
-					g.bullet[i].rec.Y += g.bullet[i].speed.Y
-					// Collision with enemy
-					for j := 0; j < MaxEnemies; j++ {
-						if g.enemy[j].active && !g.gameOver {
-							if rl.CheckCollisionRecs(g.bullet[i].rec, rl.Rectangle{X: g.enemy[j].position.X, Y: g.enemy[j].position.Y, Width: 90, Height: 40}) {
+		// Game over logic
+		if g.player.lives <= 0 {
+			g.gameOver = true
+		}
+		// Shoot logic
+		for i := 0; i < MaxBullets; i++ {
+			if g.bullet[i].active {
+				g.bullet[i].rec.Y += g.bullet[i].speed.Y
+				// Collision with enemy
+				for j := 0; j < MaxEnemies; j++ {
+					if g.enemy[j].active && !g.gameOver {
+						if rl.CheckCollisionRecs(g.bullet[i].rec, rl.Rectangle{X: g.enemy[j].position.X, Y: g.enemy[j].position.Y, Width: 90, Height: 40}) {
+							g.enemy[j].active = false
+							if !g.gun[cWeapon].armourPiercing {
+								g.bullet[i].active = false
+							}
+							tangoDown(g)
+						}
+						if g.enemy[j].position.Y < 100 {
+							if rl.CheckCollisionPointRec(rl.Vector2{X: g.bullet[i].rec.X, Y: g.bullet[i].rec.Y - 75}, rl.Rectangle{X: g.enemy[j].position.X, Y: g.enemy[j].position.Y, Width: 90, Height: 40}) {
 								g.enemy[j].active = false
 								if !g.gun[cWeapon].armourPiercing {
 									g.bullet[i].active = false
 								}
 								tangoDown(g)
 							}
-							if g.enemy[j].position.Y < 100 {
-								if rl.CheckCollisionPointRec(rl.Vector2{X: g.bullet[i].rec.X, Y: g.bullet[i].rec.Y - 75}, rl.Rectangle{X: g.enemy[j].position.X, Y: g.enemy[j].position.Y, Width: 90, Height: 40}) {
-									g.enemy[j].active = false
-									if !g.gun[cWeapon].armourPiercing {
-										g.bullet[i].active = false
-									}
-									tangoDown(g)
-								}
-							}
-						}
-					}
-					if g.bullet[i].rec.Y+g.bullet[i].rec.Height >= screenHeight {
-						g.bullet[i].active = false
-					}
-				}
-			}
-			// Enemy behaviour
-			// TODO: Shooting for armed enemies (armed enemies are currently disabled)
-			for i := 0; i < MaxEnemies; i++ {
-				if g.enemy[i].active {
-					g.enemy[i].position.Y -= float32(rl.GetRandomValue(1, int32(g.enemy[i].speed)))
-					// Crossing the border
-					if g.enemy[i].position.Y < -120 {
-						g.enemy[i].position.X = float32(rl.GetRandomValue(0, screenWidth-100))
-						g.enemy[i].position.Y = float32(rl.GetRandomValue(screenHeight+200, screenHeight+1000))
-						if !g.gameOver {
-							score -= 500
-						}
-					}
-					// Collision with player
-					if !g.gameOver {
-						if rl.CheckCollisionRecs(rl.Rectangle{X: g.enemy[i].position.X, Y: g.enemy[i].position.Y, Width: 90, Height: 40}, rl.Rectangle{X: g.player.position.X, Y: g.player.position.Y, Width: 90, Height: 40}) {
-							g.enemy[i].active = false
-							g.player.lives--
-							tangoDown(g)
-						}
-					}
-					// Collision with barbed wire
-					if rl.CheckCollisionRecs(rl.Rectangle{X: g.enemy[i].position.X, Y: g.enemy[i].position.Y, Width: 90, Height: 40}, g.barbedWire) {
-						g.enemy[i].speed = 0.3
-					} else {
-						g.enemy[i].speed = 3
-					}
-				} else {
-					g.splatterRec.X = float32(enemyFrame * g.enemyTexture.Width / 4)
-					if enemyFrame >= 4 {
-						g.enemy[i].position.X = float32(rl.GetRandomValue(0, screenWidth-100))
-						g.enemy[i].position.Y = float32(rl.GetRandomValue(screenHeight+200, screenHeight+1000))
-						if killsRequired-kills >= MaxEnemies {
-							g.enemy[i].active = true
 						}
 					}
 				}
-				updateEnemyRec(g, g.enemy[i])
-			}
-			// Update controls if player is alive
-			if !g.gameOver {
-				keyCallback(g) // Game controls
+				if g.bullet[i].rec.Y+g.bullet[i].rec.Height >= screenHeight {
+					g.bullet[i].active = false
+				}
 			}
 		}
-	} else {
-		enterShopScreen(g)
+		// Enemy behaviour
+		// TODO: Shooting for armed enemies (armed enemies are currently disabled)
+		for i := 0; i < MaxEnemies; i++ {
+			if g.enemy[i].active {
+				g.enemy[i].position.Y -= float32(rl.GetRandomValue(1, int32(g.enemy[i].speed)))
+				// Crossing the border
+				if g.enemy[i].position.Y < -120 {
+					g.enemy[i].position.X = float32(rl.GetRandomValue(0, screenWidth-100))
+					g.enemy[i].position.Y = float32(rl.GetRandomValue(screenHeight+200, screenHeight+1000))
+					if !g.gameOver {
+						score -= 500
+						g.player.lives--
+					}
+				}
+				// Collision with player
+				if !g.gameOver {
+					if rl.CheckCollisionRecs(rl.Rectangle{X: g.enemy[i].position.X, Y: g.enemy[i].position.Y, Width: 90, Height: 40}, rl.Rectangle{X: g.player.position.X, Y: g.player.position.Y, Width: 90, Height: 40}) {
+						g.enemy[i].active = false
+						g.player.lives--
+						tangoDown(g)
+					}
+				}
+				// Collision with barbed wire
+				if rl.CheckCollisionRecs(rl.Rectangle{X: g.enemy[i].position.X, Y: g.enemy[i].position.Y, Width: 90, Height: 40}, g.barbedWire) {
+					g.enemy[i].speed = 0.3
+				} else {
+					g.enemy[i].speed = 3
+				}
+			} else {
+				g.splatterRec.X = float32(enemyFrame * g.enemyTexture.Width / 4)
+				if enemyFrame >= 4 {
+					g.enemy[i].position.X = float32(rl.GetRandomValue(0, screenWidth-100))
+					g.enemy[i].position.Y = float32(rl.GetRandomValue(screenHeight+200, screenHeight+1000))
+					if killsRequired-kills >= MaxEnemies {
+						g.enemy[i].active = true
+					}
+				}
+			}
+			updateEnemyRec(g, g.enemy[i])
+		}
+		// Update controls if player is alive
+		if !g.gameOver {
+			keyCallback(g) // Game controls
+		}
 	}
 
 	draw(g) // Display graphics

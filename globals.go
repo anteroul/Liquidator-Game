@@ -9,6 +9,7 @@ const screenHeight = 720
 const PlayerMaxLife = 3
 const MaxBullets = 30
 const MaxEnemies = 8
+const Guns = 4
 
 var cWeapon = 0 // 0 = AR-15, 1 = Galil, 2 = Barrett, 3 = Groza, 4 = M60
 var currentFrame int32 = 0
