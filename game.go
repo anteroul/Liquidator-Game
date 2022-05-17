@@ -5,7 +5,6 @@ package main
 import (
 	rl "github.com/gen2brain/raylib-go/raylib"
 	"math/rand"
-	"strconv"
 	"time"
 )
 
@@ -17,45 +16,6 @@ func GetEnemies() int {
 func RandBool() bool {
 	rand.Seed(time.Now().UnixNano())
 	return rand.Intn(128) == 1
-}
-
-func Setup() {
-
-	var gameShouldLaunch = false
-
-	rl.InitWindow(800, 400, "Settings")
-	rl.SetTargetFPS(60)
-
-	for !gameShouldLaunch {
-		if rl.IsKeyPressed(rl.KeyUp) || rl.IsKeyPressed(rl.KeyDown) {
-			if !enableFullScreen {
-				enableFullScreen = true
-			} else {
-				enableFullScreen = false
-			}
-		}
-		if rl.IsKeyPressed(rl.KeyEnter) {
-			gameShouldLaunch = true
-		}
-
-		rl.BeginDrawing()
-		rl.ClearBackground(rl.White)
-		rl.DrawText("Fullscreen enabled", 300, 100, 20, rl.Black)
-		rl.DrawText("Fullscreen disabled", 300, 200, 20, rl.Black)
-		rl.DrawText("Press Enter to launch game", 250, 300, 20, rl.Magenta)
-
-		switch enableFullScreen {
-		case true:
-			rl.DrawRectangle(200, 100, 20, 20, rl.Red)
-			break
-		case false:
-			rl.DrawRectangle(200, 200, 20, 20, rl.Red)
-			break
-		}
-
-		rl.EndDrawing()
-	}
-	rl.CloseWindow()
 }
 
 func LaunchGame() {
@@ -201,21 +161,6 @@ func (g *Game) deInit() {
 	rl.CloseWindow()
 }
 
-func displayShopScreen(g *Game) {
-	if rl.IsKeyPressed(rl.KeyEnter) {
-		g.player.position = rl.NewVector2(float32(screenWidth)/2, 40)
-		// Initialize bullets
-		for i := 0; i < MaxBullets; i++ {
-			g.bullet[i] = Bullet{rec: rl.Rectangle{X: g.player.position.X + 40, Y: g.player.position.Y + 105, Width: 5, Height: 10}, speed: rl.Vector2{Y: 15}, active: false, Color: rl.Yellow}
-		}
-		// Initialize enemies
-		for i := 0; i < MaxEnemies; i++ {
-			g.enemy[i] = Enemy{rl.Vector2{X: float32(rl.GetRandomValue(0, screenWidth-100)), Y: float32(rl.GetRandomValue(screenHeight, screenHeight+1000))}, false, true, 3}
-		}
-		inShop = false
-	}
-}
-
 func (g *Game) update() {
 
 	if !inShop {
@@ -224,14 +169,7 @@ func (g *Game) update() {
 
 			framesCounter++
 
-			if kills == killsRequired && g.player.lives > 0 {
-				for i := 0; i < 5; i++ {
-					g.gun[i].ammo = g.gun[i].maxAmmo
-				}
-				g.player.reloading = false
-				kills = 0
-				wave++
-				killsRequired = GetEnemies()
+			if kills >= killsRequired && g.player.lives > 0 {
 				inShop = true
 			}
 
@@ -323,7 +261,7 @@ func (g *Game) update() {
 						}
 					}
 				}
-				go updateEnemyRec(g, g.enemy[i])
+				updateEnemyRec(g, g.enemy[i])
 			}
 			// Update controls if player is alive
 			if !g.gameOver {
@@ -331,7 +269,7 @@ func (g *Game) update() {
 			}
 		}
 	} else {
-		displayShopScreen(g)
+		enterShopScreen(g)
 	}
 
 	draw(g) // Display graphics
@@ -344,11 +282,11 @@ func tangoDown(g *Game) {
 	if score >= 0 {
 		money += 50
 	}
-	kills++
 	enemyFrame = 0
 	if RandBool() && g.player.lives != PlayerMaxLife {
 		g.player.lives++
 	}
+	kills++
 }
 
 func updateEnemyRec(g *Game, enemy Enemy) {
@@ -461,123 +399,6 @@ func keyCallback(g *Game) {
 	}
 	if rl.IsKeyPressed(rl.KeyFive) {
 		switchWeapon(g, 4) // M60
-	}
-}
-
-func draw(g *Game) {
-	rl.BeginDrawing()
-	rl.ClearBackground(rl.DarkGray)
-	if !inShop {
-		rl.DrawTexture(g.bg, 0, 0, rl.White) // Draw background
-		// Draw player character
-		if !g.gameOver {
-			rl.DrawTextureRec(g.char, g.playerRec, g.player.position, rl.White)
-		} else {
-			rl.DrawTexture(g.dead, int32(g.player.position.X-50), int32(g.player.position.Y-60), rl.White)
-		}
-		// Draw enemies
-		for i := 0; i < MaxEnemies; i++ {
-			if g.enemy[i].active {
-				switch g.enemy[i].armed {
-				case true:
-					rl.DrawTextureRec(g.armedEnemyTexture, g.enemyRec, g.enemy[i].position, rl.White)
-					break
-				case false:
-					rl.DrawTextureRec(g.enemyTexture, g.enemyRec, g.enemy[i].position, rl.White)
-					break
-				}
-			} else {
-				rl.DrawTextureRec(g.splatter, g.splatterRec, g.enemy[i].position, rl.White)
-			}
-		}
-		// Draw bullets
-		for i := 0; i < MaxBullets; i++ {
-			if g.bullet[i].active {
-				rl.DrawRectangleRec(g.bullet[i].rec, g.bullet[i].Color)
-				if g.bullet[i].rec.Y < g.player.position.Y+140 {
-					rl.DrawCircle(int32(g.player.position.X+41.5), int32(g.player.position.Y+112.5), 15, rl.Orange)
-				}
-			}
-		}
-		// Draw ammo
-		rl.DrawTexture(g.bulletTex, screenWidth-55, screenHeight-100, rl.RayWhite)
-		if !g.player.reloading {
-			if g.gun[cWeapon].ammo == 0 {
-				rl.DrawText(strconv.Itoa(g.gun[cWeapon].ammo), screenWidth-35, screenHeight-30, 20, rl.Red)
-			} else {
-				rl.DrawText(strconv.Itoa(g.gun[cWeapon].ammo), screenWidth-35, screenHeight-30, 20, rl.Black)
-			}
-		} else {
-			rl.DrawText("reloading", screenWidth-100, screenHeight-30, 20, rl.Red)
-		}
-
-		rl.DrawTexture(g.gun[cWeapon].gunIcon, screenWidth-325, screenHeight-100, rl.White)
-
-		// Game Over screen
-		if g.gameOver {
-			//rl.DrawTexture(g.deathScreen, 0, 0, rl.White)
-			rl.DrawText("Mission Failed!", screenWidth/2-280, screenHeight/2, 80, rl.Black)
-			rl.DrawText("Press Enter to retry", screenWidth/2-220, screenHeight/2+100, 40, rl.Violet)
-		}
-
-		// Draw hearts
-		for i := 0; i <= g.player.lives; i++ {
-			switch i {
-			case 1:
-				rl.DrawTexture(g.heart, screenWidth-150, 0, rl.RayWhite)
-				break
-			case 2:
-				rl.DrawTexture(g.heart, screenWidth-100, 0, rl.RayWhite)
-				break
-			case 3:
-				rl.DrawTexture(g.heart, screenWidth-50, 0, rl.RayWhite)
-				break
-			default:
-				break
-			}
-		}
-
-		if score < 0 {
-			rl.DrawText(strconv.Itoa(score), 20, screenHeight-120, 40, rl.Maroon)
-		} else {
-			rl.DrawText(strconv.Itoa(score), 20, screenHeight-120, 40, rl.White)
-		}
-
-		rl.DrawText("Kills: "+strconv.Itoa(kills), 280, screenHeight-60, 40, rl.SkyBlue)
-		rl.DrawText(" / "+strconv.Itoa(killsRequired), 420, screenHeight-60, 40, rl.SkyBlue)
-
-	} else { // Draw shop screen
-		rl.DrawTexture(g.shopScreen, 0, 0, rl.White)
-
-		// Draw UI buttons and their functionality implemented (band-aid solution, I know)
-		for i := 0; i < 4; i++ {
-			if !g.gun[i+1].inInventory {
-				rl.DrawRectangle(int32(screenWidth/4*i+40), screenHeight/3*2, int32(g.button[i].size.X), int32(g.button[i].size.Y+15), rl.DarkGray)
-				rl.DrawTexture(*g.button[i].icon, int32(screenWidth/4*i+45), screenHeight/3*2, rl.Black)
-				rl.DrawText(g.gun[i+1].name+" $"+strconv.Itoa(g.gun[i+1].price), int32(screenWidth/4*i+60), screenHeight*0.75, 25, rl.Green)
-			}
-			if onClickEvent(&rl.Rectangle{X: float32(int32(screenWidth/4*i + 40)), Y: screenHeight / 3 * 2, Width: float32(int32(g.button[i].size.X)), Height: float32(int32(g.button[i].size.Y + 15))}) {
-				if money >= g.gun[i+1].price && !g.gun[i+1].inInventory {
-					money -= g.gun[i+1].price
-					g.gun[i+1].inInventory = true
-				}
-			}
-		}
-		rl.DrawText("Press enter to exit shop", screenWidth/3, screenHeight*0.9, 40, rl.SkyBlue)
-	}
-
-	rl.DrawText(strconv.Itoa(money)+"$", 20, screenHeight-60, 40, rl.Green)
-
-	rl.DrawFPS(5, 0)
-	rl.EndDrawing()
-}
-
-// An event listener
-func onClickEvent(rectangle *rl.Rectangle) bool {
-	if rl.CheckCollisionPointRec(rl.GetMousePosition(), *rectangle) && rl.IsMouseButtonPressed(0) {
-		return true
-	} else {
-		return false
 	}
 }
 

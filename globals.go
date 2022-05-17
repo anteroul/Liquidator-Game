@@ -61,12 +61,6 @@ type Gun struct {
 	price          int
 }
 
-type Button struct {
-	size rl.Vector2
-	icon *rl.Texture2D
-	gun  *Gun
-}
-
 type Game struct {
 	gameOver          bool
 	pause             bool
