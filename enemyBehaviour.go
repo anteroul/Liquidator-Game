@@ -36,16 +36,9 @@ func updateEnemy(g *Game) {
 			if enemyFrame >= 4 {
 				g.enemy[i].position.X = float32(rl.GetRandomValue(0, screenWidth-100))
 				g.enemy[i].position.Y = float32(rl.GetRandomValue(screenHeight+200, screenHeight+1000))
-
-				/*
-
-					// What's going on here?
-
-					if killsRequired-kills >= MaxEnemies {
-						g.enemy[i].active = true
-					}
-
-				*/
+				if killsRequired-kills >= MaxEnemies {
+					g.enemy[i].active = true
+				}
 			}
 		}
 		updateEnemyRec(g, g.enemy[i])
