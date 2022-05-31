@@ -1,8 +1,6 @@
 package main
 
-import (
-	rl "github.com/gen2brain/raylib-go/raylib"
-)
+import rl "github.com/gen2brain/raylib-go/raylib"
 
 const screenWidth = 1280
 const screenHeight = 720

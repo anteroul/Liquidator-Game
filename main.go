@@ -1,8 +1,6 @@
 package main
 
-import (
-	rl "github.com/gen2brain/raylib-go/raylib"
-)
+import rl "github.com/gen2brain/raylib-go/raylib"
 
 func main() {
 	Setup() // Game Settings
