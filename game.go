@@ -9,8 +9,7 @@ import (
 )
 
 func GetEnemies() int {
-	var enemies = 20 * wave
-	return enemies
+	return 20 * wave
 }
 
 func RandBool() bool {
