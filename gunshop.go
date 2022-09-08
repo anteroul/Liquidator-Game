@@ -3,8 +3,6 @@ package main
 import rl "github.com/gen2brain/raylib-go/raylib"
 
 func enterShopScreen(g *Game) {
-	inShop = true
-
 	for i := 0; i < Guns; i++ {
 		if !g.gun[i+1].inInventory {
 			if onClickEvent(&rl.Rectangle{X: float32(int32(screenWidth/4*i + 40)), Y: screenHeight / 3 * 2, Width: float32(int32(g.button[i].size.X)), Height: float32(int32(g.button[i].size.Y + 15))}) {
@@ -14,10 +12,6 @@ func enterShopScreen(g *Game) {
 				}
 			}
 		}
-	}
-	if rl.IsKeyPressed(rl.KeyEnter) {
-		inShop = false
-		exitShopScreen(g)
 	}
 }
 
@@ -39,4 +33,5 @@ func exitShopScreen(g *Game) {
 		g.gun[i].ammo = g.gun[i].maxAmmo
 	}
 	g.player.reloading = false
+	g.pause = false
 }

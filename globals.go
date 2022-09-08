@@ -4,7 +4,7 @@ import rl "github.com/gen2brain/raylib-go/raylib"
 
 const screenWidth = 1280
 const screenHeight = 720
-const PlayerMaxLife = 3
+const PlayerMaxLife = 5
 const MaxBullets = 30
 const MaxEnemies = 8
 const Guns = 4
@@ -26,6 +26,8 @@ var sfxDeath rl.Sound
 var sfxGroza rl.Sound
 var sfxRifle rl.Sound
 var sfxSniper rl.Sound
+var sfxMortar rl.Sound
+var sfxReload rl.Sound
 
 type Player struct {
 	position  rl.Vector2
@@ -72,11 +74,13 @@ type Game struct {
 	dead              rl.Texture2D
 	heart             rl.Texture2D
 	bg                rl.Texture2D
+	crater            rl.Texture2D
 	shopScreen        rl.Texture2D
 	deathScreen       rl.Texture2D
 	enemyTexture      rl.Texture2D
 	armedEnemyTexture rl.Texture2D
 	splatter          rl.Texture2D
+	explosion         rl.Texture2D
 	bulletTex         rl.Texture2D
 	armalite          rl.Texture2D
 	barrett           rl.Texture2D
@@ -87,4 +91,5 @@ type Game struct {
 	enemyRec          rl.Rectangle
 	splatterRec       rl.Rectangle
 	barbedWire        rl.Rectangle
+	explosionRec      rl.Rectangle
 }

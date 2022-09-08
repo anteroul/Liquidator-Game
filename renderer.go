@@ -63,21 +63,10 @@ func draw(g *Game) {
 
 		// Draw hearts
 		for i := 0; i <= g.player.lives; i++ {
-			switch i {
-			case 1:
-				rl.DrawTexture(g.heart, screenWidth-150, 0, rl.RayWhite)
-				break
-			case 2:
-				rl.DrawTexture(g.heart, screenWidth-100, 0, rl.RayWhite)
-				break
-			case 3:
-				rl.DrawTexture(g.heart, screenWidth-50, 0, rl.RayWhite)
-				break
-			default:
-				break
-			}
+			rl.DrawTexture(g.heart, int32(screenWidth-50*i), 0, rl.RayWhite)
 		}
 
+		// Draw score
 		if score < 0 {
 			rl.DrawText(strconv.Itoa(score), 20, screenHeight-120, 40, rl.Maroon)
 		} else {

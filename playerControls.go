@@ -42,28 +42,9 @@ func keyCallback(g *Game) {
 		g.playerRec.X = 0
 	}
 	// Semi-auto:
-	if rl.IsKeyPressed(rl.KeySpace) {
-		if g.gun[cWeapon].ammo > 0 && !g.player.reloading && !g.gun[cWeapon].automatic {
-			for i := 0; i < MaxBullets; i++ {
-				if !g.bullet[i].active {
-					g.bullet[i].rec = rl.Rectangle{X: g.player.position.X + 40, Y: g.player.position.Y + 105, Width: 5, Height: 10}
-					g.bullet[i].active = true
-					g.gun[cWeapon].ammo--
-					break
-				}
-			}
-			if !g.gun[cWeapon].armourPiercing {
-				rl.PlaySoundMulti(sfxRifle)
-			} else {
-				rl.PlaySoundMulti(sfxSniper)
-			}
-		}
-	}
-	// Full-auto:
-	if rl.IsKeyDown(rl.KeySpace) {
-		if g.gun[cWeapon].ammo > 0 && !g.player.reloading && g.gun[cWeapon].automatic {
-			firingRateCounter++
-			if firingRateCounter%g.gun[cWeapon].firingRate == 0 {
+	if kills < killsRequired {
+		if rl.IsKeyPressed(rl.KeySpace) {
+			if g.gun[cWeapon].ammo > 0 && !g.player.reloading && !g.gun[cWeapon].automatic {
 				for i := 0; i < MaxBullets; i++ {
 					if !g.bullet[i].active {
 						g.bullet[i].rec = rl.Rectangle{X: g.player.position.X + 40, Y: g.player.position.Y + 105, Width: 5, Height: 10}
@@ -75,7 +56,28 @@ func keyCallback(g *Game) {
 				if !g.gun[cWeapon].armourPiercing {
 					rl.PlaySoundMulti(sfxRifle)
 				} else {
-					rl.PlaySoundMulti(sfxGroza)
+					rl.PlaySoundMulti(sfxSniper)
+				}
+			}
+		}
+		// Full-auto:
+		if rl.IsKeyDown(rl.KeySpace) {
+			if g.gun[cWeapon].ammo > 0 && !g.player.reloading && g.gun[cWeapon].automatic {
+				firingRateCounter++
+				if firingRateCounter%g.gun[cWeapon].firingRate == 0 {
+					for i := 0; i < MaxBullets; i++ {
+						if !g.bullet[i].active {
+							g.bullet[i].rec = rl.Rectangle{X: g.player.position.X + 40, Y: g.player.position.Y + 105, Width: 5, Height: 10}
+							g.bullet[i].active = true
+							g.gun[cWeapon].ammo--
+							break
+						}
+					}
+					if !g.gun[cWeapon].armourPiercing {
+						rl.PlaySoundMulti(sfxRifle)
+					} else {
+						rl.PlaySoundMulti(sfxGroza)
+					}
 				}
 			}
 		}
@@ -83,7 +85,10 @@ func keyCallback(g *Game) {
 	// Reload keys:
 	if rl.IsKeyPressed(rl.KeyR) {
 		if g.gun[cWeapon].ammo != g.gun[cWeapon].maxAmmo {
-			g.player.reloading = true
+			if !g.player.reloading {
+				rl.PlaySound(sfxReload)
+				g.player.reloading = true
+			}
 		}
 	}
 	// Weapon keys:
