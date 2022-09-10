@@ -6,28 +6,35 @@ import (
 	"io/ioutil"
 )
 
+type HiScores struct {
+	HiScores [10]HiScore `json:"hiscore"`
+}
+
 type HiScore struct {
 	Name  string `json:"name"`
 	Score int    `json:"score"`
 }
 
-var leaderboards [10]HiScore
+func GetHiScores() HiScores {
+	file, _ := ioutil.ReadFile("./backend/leaderboards.json")
+	data := HiScores{}
+
+	_ = json.Unmarshal([]byte(file), &data)
+
+	return data
+}
 
 func SubmitScore(name string, score int) {
-	var index = -1
+	leaderboards := GetHiScores()
 
-	for i := 0; i < len(leaderboards); i++ {
-		if score > leaderboards[i].Score {
-			leaderboards[i] = HiScore{name, score}
-			index = i
+	for i := 0; i < len(leaderboards.HiScores); i++ {
+		if score > leaderboards.HiScores[i].Score {
+			leaderboards.HiScores[i] = HiScore{name, score}
 			break
 		}
 	}
 
-	if index != -1 {
-		file, _ := json.MarshalIndent(leaderboards[index], "", " ")
-		_ = ioutil.WriteFile("./backend/leaderboards.json", file, 0644)
-	}
-
-	fmt.Println("Score submitted successfully")
+	file, _ := json.MarshalIndent(leaderboards.HiScores, "", " ")
+	_ = ioutil.WriteFile("./backend/leaderboards.json", file, 0644)
+	fmt.Println("Score submitted successfully!")
 }

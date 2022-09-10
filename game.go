@@ -22,7 +22,7 @@ func RandBool() bool {
 func LaunchGame() {
 	// Create window and set target FPS
 	rl.InitWindow(screenWidth, screenHeight, "The Liquidator")
-	rl.SetTargetFPS(int32(rl.GetMonitorRefreshRate(rl.GetCurrentMonitor())))
+	rl.SetTargetFPS(60)
 
 	if enableFullScreen {
 		rl.ToggleFullscreen()
@@ -79,10 +79,6 @@ func LaunchGame() {
 	killsRequired = GetEnemies()
 
 	for !rl.WindowShouldClose() { // Game loop
-		// Frame limiter
-		if rl.GetFPS() > 90 {
-			rl.SetTargetFPS(90)
-		}
 		// Reset game when the game is over
 		if game.gameOver {
 			if rl.IsKeyPressed(rl.KeyEnter) {

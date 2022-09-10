@@ -50,7 +50,7 @@ func updateEnemy(g *Game) {
 
 func tangoDown(g *Game) {
 	rl.PlaySoundMulti(sfxDeath)
-	score += 100
+	score += 200
 	if score >= 0 {
 		money += 50 * wave
 	}
