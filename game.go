@@ -3,8 +3,10 @@
 package main
 
 import (
+	rest "Liquidator/backend"
 	rl "github.com/gen2brain/raylib-go/raylib"
 	"math/rand"
+	"os"
 	"time"
 )
 
@@ -84,6 +86,8 @@ func LaunchGame() {
 		// Reset game when the game is over
 		if game.gameOver {
 			if rl.IsKeyPressed(rl.KeyEnter) {
+				name, _ := os.Hostname()
+				rest.SubmitScore(name, score)
 				Reset(&game)
 			}
 		}
