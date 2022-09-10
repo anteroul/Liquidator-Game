@@ -1,42 +1,44 @@
-[
- {
-  "name": "Krakow",
-  "score": 60900
- },
- {
-  "name": "",
-  "score": 0
- },
- {
-  "name": "",
-  "score": 0
- },
- {
-  "name": "",
-  "score": 0
- },
- {
-  "name": "",
-  "score": 0
- },
- {
-  "name": "",
-  "score": 0
- },
- {
-  "name": "",
-  "score": 0
- },
- {
-  "name": "",
-  "score": 0
- },
- {
-  "name": "",
-  "score": 0
- },
- {
-  "name": "",
-  "score": 0
- }
-]
+{
+ "hiscore": [
+  {
+   "name": "",
+   "score": 0
+  },
+  {
+   "name": "",
+   "score": 0
+  },
+  {
+   "name": "",
+   "score": 0
+  },
+  {
+   "name": "",
+   "score": 0
+  },
+  {
+   "name": "",
+   "score": 0
+  },
+  {
+   "name": "",
+   "score": 0
+  },
+  {
+   "name": "",
+   "score": 0
+  },
+  {
+   "name": "",
+   "score": 0
+  },
+  {
+   "name": "",
+   "score": 0
+  },
+  {
+   "name": "",
+   "score": 0
+  }
+ ]
+}

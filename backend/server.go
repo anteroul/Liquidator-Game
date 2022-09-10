@@ -34,7 +34,7 @@ func SubmitScore(name string, score int) {
 		}
 	}
 
-	file, _ := json.MarshalIndent(leaderboards.HiScores, "", " ")
+	file, _ := json.MarshalIndent(leaderboards, "", " ")
 	_ = ioutil.WriteFile("./backend/leaderboards.json", file, 0644)
 	fmt.Println("Score submitted successfully!")
 }
