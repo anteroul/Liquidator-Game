@@ -77,6 +77,10 @@ func LaunchGame() {
 	killsRequired = GetEnemies()
 
 	for !rl.WindowShouldClose() { // Game loop
+		// Frame limiter
+		if rl.GetFPS() > 90 {
+			rl.SetTargetFPS(90)
+		}
 		// Reset game when the game is over
 		if game.gameOver {
 			if rl.IsKeyPressed(rl.KeyEnter) {

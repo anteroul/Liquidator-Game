@@ -4,9 +4,11 @@ import rl "github.com/gen2brain/raylib-go/raylib"
 
 func updateEnemy(g *Game) {
 	// Enemy behaviour
+	var isEnemiesSpawned = false
 	// TODO: Shooting for armed enemies (armed enemies are currently disabled)
 	for i := 0; i < MaxEnemies; i++ {
 		if g.enemy[i].active {
+			isEnemiesSpawned = true
 			g.enemy[i].position.Y -= float32(rl.GetRandomValue(1, int32(g.enemy[i].speed)))
 			// Crossing the border
 			if g.enemy[i].position.Y < -120 {
@@ -36,8 +38,9 @@ func updateEnemy(g *Game) {
 			if enemyFrame >= 4 {
 				g.enemy[i].position.X = float32(rl.GetRandomValue(0, screenWidth-100))
 				g.enemy[i].position.Y = float32(rl.GetRandomValue(screenHeight+200, screenHeight+1000))
-				if killsRequired-kills >= MaxEnemies {
+				if killsRequired-kills > MaxEnemies || !isEnemiesSpawned {
 					g.enemy[i].active = true
+					isEnemiesSpawned = true
 				}
 			}
 		}
