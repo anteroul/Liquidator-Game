@@ -3,10 +3,8 @@
 package main
 
 import (
-	rest "Liquidator/backend"
 	rl "github.com/gen2brain/raylib-go/raylib"
 	"math/rand"
-	"os"
 	"time"
 )
 
@@ -54,9 +52,9 @@ func LaunchGame() {
 	game.explosionRec = rl.Rectangle{Width: float32(game.explosion.Width / 16), Height: float32(game.explosion.Height)}
 
 	game.gun[0] = Gun{"AR-15", false, false, true, 6, 30, 30, game.armalite, 0}
-	game.gun[1] = Gun{"Galil", true, false, false, 6, 30, 30, game.galil, 3000}
+	game.gun[1] = Gun{"Galil", true, false, false, 6, 30, 30, game.galil, 2000}
 	game.gun[2] = Gun{"Barrett", false, true, false, 6, 20, 20, game.barrett, 5000}
-	game.gun[3] = Gun{"Groza", true, true, false, 4, 20, 20, game.groza, 12500}
+	game.gun[3] = Gun{"Groza", true, true, false, 4, 40, 40, game.groza, 12500}
 	game.gun[4] = Gun{"M60", true, false, false, 8, 100, 100, game.machineGun, 25000}
 
 	game.button[0] = Button{size: rl.Vector2{X: screenWidth / 5, Y: screenHeight / 7}, icon: &game.galil, gun: &game.gun[1]}
@@ -82,8 +80,6 @@ func LaunchGame() {
 		// Reset game when the game is over
 		if game.gameOver {
 			if rl.IsKeyPressed(rl.KeyEnter) {
-				name, _ := os.Hostname()
-				rest.SubmitScore(name, score)
 				Reset(&game)
 			}
 		}

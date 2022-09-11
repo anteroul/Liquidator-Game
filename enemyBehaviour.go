@@ -63,13 +63,7 @@ func tangoDown(g *Game) {
 
 func updateEnemyRec(g *Game, enemy Enemy) {
 	if enemy.active {
-		switch enemy.armed {
-		case true:
-			g.enemyRec.X = float32(enemyFrame * g.armedEnemyTexture.Width / 4)
-			break
-		case false:
-			g.enemyRec.X = float32(enemyFrame * g.enemyTexture.Width / 4)
-			break
-		}
+		g.enemyRec.X = float32(enemyFrame * g.armedEnemyTexture.Width / 4)
+		g.enemyRec.X = float32(enemyFrame * g.enemyTexture.Width / 4)
 	}
 }

@@ -1,6 +1,9 @@
 package main
 
-import rl "github.com/gen2brain/raylib-go/raylib"
+import (
+	rl "github.com/gen2brain/raylib-go/raylib"
+	"os"
+)
 
 func main() {
 	Setup() // Game Settings
@@ -13,7 +16,7 @@ func Setup() {
 	rl.InitWindow(800, 400, "Settings")
 	rl.SetTargetFPS(60)
 
-	for !gameShouldLaunch {
+	for !gameShouldLaunch && !rl.WindowShouldClose() {
 		if rl.IsKeyPressed(rl.KeyUp) || rl.IsKeyPressed(rl.KeyDown) {
 			if !enableFullScreen {
 				enableFullScreen = true
@@ -42,5 +45,10 @@ func Setup() {
 
 		rl.EndDrawing()
 	}
+
 	rl.CloseWindow()
+
+	if !gameShouldLaunch {
+		os.Exit(0)
+	}
 }

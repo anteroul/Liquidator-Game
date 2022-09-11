@@ -76,6 +76,7 @@ func keyCallback(g *Game) {
 					if !g.gun[cWeapon].armourPiercing {
 						rl.PlaySoundMulti(sfxRifle)
 					} else {
+						rl.SetSoundVolume(sfxGroza, 0.5)
 						rl.PlaySoundMulti(sfxGroza)
 					}
 				}
