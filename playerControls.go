@@ -108,6 +108,9 @@ func keyCallback(g *Game) {
 	if rl.IsKeyPressed(rl.KeyFive) {
 		switchWeapon(g, 4) // M60
 	}
+	if rl.IsKeyPressed(rl.KeyEnd) {
+		g.player.lives = 0
+	}
 }
 
 // Special keyboard events
