@@ -17,8 +17,5 @@ An unfinished game project made with Raylib and Go.
 - SuperPhat (Sound FX)
 
 # Version Notes:
-### v0.9 alpha
-- Sound for reloading
-- Texture for craters created by explosives
-- Airstrike sound effect
-- Bug fixes with spawning enemies
+### v0.9.5 alpha
+- Backend for storing hiscores

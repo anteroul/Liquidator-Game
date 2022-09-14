@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
-	"log"
 	"net/http"
 )
 
@@ -17,12 +16,14 @@ type HiScore struct {
 func ReadHiScores() []HiScore {
 	response, err := http.Get("http://localhost:8080")
 	if err != nil {
-		fmt.Print(err.Error())
+		fmt.Println(err.Error())
+		return nil
 	}
 
 	responseData, err := ioutil.ReadAll(response.Body)
 	if err != nil {
-		log.Fatal(err)
+		fmt.Println(err)
+		return nil
 	}
 
 	var responseObject []HiScore
@@ -32,11 +33,12 @@ func ReadHiScores() []HiScore {
 }
 
 func SubmitNewHiScore(name string, score int) {
-	hiScores := ReadHiScores()
-	data := append(hiScores, HiScore{name, score})
-	jsonData, _ := json.Marshal(data)
-	response, _ := http.Post("http://localhost:8080", "application/json", bytes.NewBuffer(jsonData))
-	var res map[string]interface{}
-	json.NewDecoder(response.Body).Decode(&res)
-	fmt.Println(res["json"])
+	var hs = HiScore{name, score}
+	data, _ := json.Marshal(hs)
+	request, err := http.Post("http://localhost:8080", "application/json", bytes.NewBuffer(data))
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	request.Header.Set("Content-Type", "application/json; charset=UTF-8")
 }
