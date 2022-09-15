@@ -17,6 +17,5 @@ An unfinished game project made with Raylib and Go.
 - SuperPhat (Sound FX)
 
 # Version Notes:
-### v0.9.6 alpha
-- Deleted unused resources
-- Cleaned up code
+### v1.0 beta
+- First beta version

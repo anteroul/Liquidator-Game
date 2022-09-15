@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	rl "github.com/gen2brain/raylib-go/raylib"
 	"math/rand"
 	"os/user"
@@ -72,17 +71,19 @@ func LaunchGame() {
 
 	killsRequired = GetEnemies()
 	current, _ := user.Current()
-	username := current.Username
+	username = current.Username
 
 	for !rl.WindowShouldClose() { // Game loop
 		// Reset game when the game is over
 		if game.gameOver {
 			if rl.IsKeyPressed(rl.KeyEnter) {
-				if SubmitNewHiScore(username, score) {
-
+				if !displayLeaderboards {
+					SubmitNewHiScore(username, score)
+					displayLeaderboards = true
+				} else {
+					Reset(&game)
+					displayLeaderboards = false
 				}
-				fmt.Println(ReadHiScores())
-				Reset(&game)
 			}
 		}
 		specialKeyCallback(&game)

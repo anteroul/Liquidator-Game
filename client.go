@@ -35,22 +35,21 @@ func ReadHiScores() []HiScore {
 	return responseObject
 }
 
-func SubmitNewHiScore(name string, score int) bool {
+func SubmitNewHiScore(name string, score int) {
 	hs := HiScore{name, score}
 	leaderboards := ReadHiScores()
 	if len(leaderboards) > 9 {
 		if leaderboards[9].Score > hs.Score {
 			fmt.Println("You didn't make it to the hi-scores.")
-			return false
+			return
 		}
 	}
 	data, _ := json.Marshal(hs)
 	request, err := http.Post("http://localhost:8080", "application/json", bytes.NewBuffer(data))
 	if err != nil {
 		fmt.Println(err)
-		return false
+		return
 	}
 
 	request.Header.Set("Content-Type", "application/json; charset=UTF-8")
-	return true
 }

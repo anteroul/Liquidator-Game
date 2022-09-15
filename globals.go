@@ -17,6 +17,7 @@ var killsRequired int
 var wave = 1
 var enableFullScreen bool
 var inShop = false
+var displayLeaderboards = false
 var firingRateCounter = 0
 var framesCounter = 0
 var reloadCounter = 0
@@ -27,6 +28,7 @@ var sfxGroza rl.Sound
 var sfxRifle rl.Sound
 var sfxSniper rl.Sound
 var sfxReload rl.Sound
+var username string
 
 type Player struct {
 	position  rl.Vector2

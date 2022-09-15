@@ -31,40 +31,48 @@ func main() {
 	r := mux.NewRouter()
 	hiScores = append(hiScores,
 		PlayerData{
-			Name:  "valiant",
-			Score: 12850,
+			Name:  "xX_ProGamer12345",
+			Score: 15850,
 		},
 		PlayerData{
 			Name:  "Joe",
-			Score: 8430,
+			Score: 12430,
 		},
 		PlayerData{
 			Name:  "Tyler",
-			Score: 7690,
+			Score: 9690,
 		},
 		PlayerData{
 			Name:  "Gabriel",
-			Score: 5440,
+			Score: 8440,
 		},
 		PlayerData{
 			Name:  "Bob",
-			Score: 4800,
+			Score: 7800,
 		},
 		PlayerData{
 			Name:  "Ryder",
-			Score: 4750,
+			Score: 7750,
 		},
 		PlayerData{
 			Name:  "Jen",
-			Score: 3800,
+			Score: 6800,
 		},
 		PlayerData{
 			Name:  "Dan",
-			Score: 2100,
+			Score: 5100,
 		},
 		PlayerData{
 			Name:  "Sam",
-			Score: 1950,
+			Score: 4950,
+		},
+		PlayerData{
+			Name:  "Sam",
+			Score: 3950,
+		},
+		PlayerData{
+			Name:  "n00b",
+			Score: 2950,
 		},
 	)
 	r.HandleFunc("/", getHiScores).Methods("GET")
