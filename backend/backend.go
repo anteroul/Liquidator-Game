@@ -67,10 +67,6 @@ func main() {
 			Score: 4950,
 		},
 		PlayerData{
-			Name:  "Sam",
-			Score: 3950,
-		},
-		PlayerData{
 			Name:  "n00b",
 			Score: 2950,
 		},
