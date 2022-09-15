@@ -32,19 +32,39 @@ func main() {
 	hiScores = append(hiScores,
 		PlayerData{
 			Name:  "valiant",
-			Score: 98850,
+			Score: 12850,
 		},
 		PlayerData{
 			Name:  "Joe",
-			Score: 58430,
+			Score: 8430,
 		},
 		PlayerData{
 			Name:  "Tyler",
-			Score: 47690,
+			Score: 7690,
 		},
 		PlayerData{
 			Name:  "Gabriel",
-			Score: 45440,
+			Score: 5440,
+		},
+		PlayerData{
+			Name:  "Bob",
+			Score: 4800,
+		},
+		PlayerData{
+			Name:  "Ryder",
+			Score: 4750,
+		},
+		PlayerData{
+			Name:  "Jen",
+			Score: 3800,
+		},
+		PlayerData{
+			Name:  "Dan",
+			Score: 2100,
+		},
+		PlayerData{
+			Name:  "Sam",
+			Score: 1950,
 		},
 	)
 	r.HandleFunc("/", getHiScores).Methods("GET")

@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"sort"
 )
 
 type HiScore struct {
@@ -28,17 +29,28 @@ func ReadHiScores() []HiScore {
 
 	var responseObject []HiScore
 	json.Unmarshal(responseData, &responseObject)
-
+	sort.Slice(responseObject, func(i, j int) bool {
+		return responseObject[i].Score > responseObject[j].Score
+	})
 	return responseObject
 }
 
-func SubmitNewHiScore(name string, score int) {
-	var hs = HiScore{name, score}
+func SubmitNewHiScore(name string, score int) bool {
+	hs := HiScore{name, score}
+	leaderboards := ReadHiScores()
+	if len(leaderboards) > 9 {
+		if leaderboards[9].Score > hs.Score {
+			fmt.Println("You didn't make it to the hi-scores.")
+			return false
+		}
+	}
 	data, _ := json.Marshal(hs)
 	request, err := http.Post("http://localhost:8080", "application/json", bytes.NewBuffer(data))
 	if err != nil {
 		fmt.Println(err)
-		return
+		return false
 	}
+
 	request.Header.Set("Content-Type", "application/json; charset=UTF-8")
+	return true
 }

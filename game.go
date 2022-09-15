@@ -1,9 +1,10 @@
 package main
 
 import (
+	"fmt"
 	rl "github.com/gen2brain/raylib-go/raylib"
 	"math/rand"
-	"os"
+	"os/user"
 	"time"
 )
 
@@ -70,13 +71,17 @@ func LaunchGame() {
 	sfxReload = rl.LoadSound("res/sounds/reload.mp3")
 
 	killsRequired = GetEnemies()
-	username, _ := os.Hostname()
+	current, _ := user.Current()
+	username := current.Username
 
 	for !rl.WindowShouldClose() { // Game loop
 		// Reset game when the game is over
 		if game.gameOver {
 			if rl.IsKeyPressed(rl.KeyEnter) {
-				SubmitNewHiScore(username, score)
+				if SubmitNewHiScore(username, score) {
+
+				}
+				fmt.Println(ReadHiScores())
 				Reset(&game)
 			}
 		}
