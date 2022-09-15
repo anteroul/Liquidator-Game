@@ -8,6 +8,7 @@ An unfinished game project made with Raylib and Go.
 - R = reload weapon
 - P = pause game
 - F1 = toggle frame limiter on/off
+- End = commit suicide
 - Esc = Exit game
 
 ### Credits:
