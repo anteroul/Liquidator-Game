@@ -2,6 +2,17 @@ package main
 
 import rl "github.com/gen2brain/raylib-go/raylib"
 
+func initNewBullet(g *Game) {
+	for i := 0; i < MaxBullets; i++ {
+		if !g.bullet[i].active {
+			g.bullet[i].rec = rl.Rectangle{X: g.player.position.X + 40, Y: g.player.position.Y + 105, Width: 5, Height: 10}
+			g.bullet[i].active = true
+			g.gun[cWeapon].ammo--
+			break
+		}
+	}
+}
+
 func updateBullets(g *Game) {
 	for i := 0; i < MaxBullets; i++ {
 		if g.bullet[i].active {
