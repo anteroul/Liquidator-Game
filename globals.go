@@ -26,7 +26,6 @@ var sfxDeath rl.Sound
 var sfxGroza rl.Sound
 var sfxRifle rl.Sound
 var sfxSniper rl.Sound
-var sfxMortar rl.Sound
 var sfxReload rl.Sound
 
 type Player struct {
@@ -38,7 +37,6 @@ type Player struct {
 
 type Enemy struct {
 	position rl.Vector2
-	armed    bool
 	active   bool
 	speed    float32
 }
@@ -63,33 +61,30 @@ type Gun struct {
 }
 
 type Game struct {
-	gameOver          bool
-	pause             bool
-	player            Player
-	enemy             [MaxEnemies]Enemy
-	bullet            [MaxBullets]Bullet
-	gun               [5]Gun
-	button            [4]Button
-	char              rl.Texture2D
-	dead              rl.Texture2D
-	heart             rl.Texture2D
-	bg                rl.Texture2D
-	crater            rl.Texture2D
-	shopScreen        rl.Texture2D
-	deathScreen       rl.Texture2D
-	enemyTexture      rl.Texture2D
-	armedEnemyTexture rl.Texture2D
-	splatter          rl.Texture2D
-	explosion         rl.Texture2D
-	bulletTex         rl.Texture2D
-	armalite          rl.Texture2D
-	barrett           rl.Texture2D
-	galil             rl.Texture2D
-	groza             rl.Texture2D
-	machineGun        rl.Texture2D
-	playerRec         rl.Rectangle
-	enemyRec          rl.Rectangle
-	splatterRec       rl.Rectangle
-	barbedWire        rl.Rectangle
-	explosionRec      rl.Rectangle
+	gameOver     bool
+	pause        bool
+	player       Player
+	enemy        [MaxEnemies]Enemy
+	bullet       [MaxBullets]Bullet
+	gun          [5]Gun
+	button       [4]Button
+	char         rl.Texture2D
+	dead         rl.Texture2D
+	heart        rl.Texture2D
+	bg           rl.Texture2D
+	shopScreen   rl.Texture2D
+	enemyTexture rl.Texture2D
+	splatter     rl.Texture2D
+	explosion    rl.Texture2D
+	bulletTex    rl.Texture2D
+	armalite     rl.Texture2D
+	barrett      rl.Texture2D
+	galil        rl.Texture2D
+	groza        rl.Texture2D
+	machineGun   rl.Texture2D
+	playerRec    rl.Rectangle
+	enemyRec     rl.Rectangle
+	splatterRec  rl.Rectangle
+	barbedWire   rl.Rectangle
+	explosionRec rl.Rectangle
 }

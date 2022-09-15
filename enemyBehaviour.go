@@ -3,9 +3,7 @@ package main
 import rl "github.com/gen2brain/raylib-go/raylib"
 
 func updateEnemy(g *Game) {
-	// Enemy behaviour
 	var isEnemiesSpawned = false
-	// TODO: Shooting for armed enemies (armed enemies are currently disabled)
 	for i := 0; i < MaxEnemies; i++ {
 		if g.enemy[i].active {
 			isEnemiesSpawned = true
@@ -63,7 +61,6 @@ func tangoDown(g *Game) {
 
 func updateEnemyRec(g *Game, enemy Enemy) {
 	if enemy.active {
-		g.enemyRec.X = float32(enemyFrame * g.armedEnemyTexture.Width / 4)
 		g.enemyRec.X = float32(enemyFrame * g.enemyTexture.Width / 4)
 	}
 }

@@ -1,5 +1,3 @@
-// Version 0.9.5 Alpha
-
 package main
 
 import (
@@ -35,11 +33,8 @@ func LaunchGame() {
 	game.bg = rl.LoadTexture("res/background.png")
 	game.shopScreen = rl.LoadTexture("res/shop_screen.png")
 	game.enemyTexture = rl.LoadTexture("res/enemy.png")
-	game.armedEnemyTexture = rl.LoadTexture("res/enemy_soldier.png")
 	game.splatter = rl.LoadTexture("res/splatter.png")
-	game.crater = rl.LoadTexture("res/crater.png")
 	game.explosion = rl.LoadTexture("res/explosion.png")
-	game.deathScreen = rl.LoadTexture("res/red_screen.png")
 	game.bulletTex = rl.LoadTexture("res/bullet.png")
 	game.armalite = rl.LoadTexture("res/armalite.png")
 	game.barrett = rl.LoadTexture("res/barrett.png")
@@ -72,7 +67,6 @@ func LaunchGame() {
 	sfxDeath = rl.LoadSound("res/sounds/loro.mp3")
 	sfxGroza = rl.LoadSound("res/sounds/groza.wav")
 	sfxSniper = rl.LoadSound("res/sounds/sniper.wav")
-	sfxMortar = rl.LoadSound("res/sounds/artillery.wav")
 	sfxReload = rl.LoadSound("res/sounds/reload.mp3")
 
 	killsRequired = GetEnemies()
@@ -117,7 +111,7 @@ func Reset(game *Game) {
 	}
 	// Initialize enemies
 	for i := 0; i < MaxEnemies; i++ {
-		game.enemy[i] = Enemy{rl.Vector2{X: float32(rl.GetRandomValue(0, screenWidth-100)), Y: float32(rl.GetRandomValue(screenHeight, screenHeight+1000))}, false, true, 3}
+		game.enemy[i] = Enemy{rl.Vector2{X: float32(rl.GetRandomValue(0, screenWidth-100)), Y: float32(rl.GetRandomValue(screenHeight, screenHeight+1000))}, true, 3}
 	}
 	for i := 0; i < Guns; i++ {
 		game.gun[i].ammo = game.gun[i].maxAmmo
@@ -138,7 +132,7 @@ func (g *Game) Init() {
 	}
 	// Initialize enemies
 	for i := 0; i < MaxEnemies; i++ {
-		g.enemy[i] = Enemy{rl.Vector2{X: float32(rl.GetRandomValue(0, screenWidth-100)), Y: float32(rl.GetRandomValue(screenHeight, screenHeight+1000))}, false, true, 3}
+		g.enemy[i] = Enemy{rl.Vector2{X: float32(rl.GetRandomValue(0, screenWidth-100)), Y: float32(rl.GetRandomValue(screenHeight, screenHeight+1000))}, true, 3}
 	}
 }
 
@@ -150,11 +144,8 @@ func (g *Game) deInit() {
 	rl.UnloadTexture(g.char)
 	rl.UnloadTexture(g.dead)
 	rl.UnloadTexture(g.enemyTexture)
-	rl.UnloadTexture(g.armedEnemyTexture)
 	rl.UnloadTexture(g.splatter)
-	rl.UnloadTexture(g.crater)
 	rl.UnloadTexture(g.explosion)
-	rl.UnloadTexture(g.deathScreen)
 	rl.UnloadTexture(g.bulletTex)
 	rl.UnloadTexture(g.armalite)
 	rl.UnloadTexture(g.barrett)
@@ -165,48 +156,7 @@ func (g *Game) deInit() {
 	rl.UnloadSound(sfxGroza)
 	rl.UnloadSound(sfxRifle)
 	rl.UnloadSound(sfxSniper)
-	rl.UnloadSound(sfxMortar)
 	rl.UnloadSound(sfxReload)
 	rl.CloseAudioDevice()
 	rl.CloseWindow()
-}
-
-func (g *Game) update() {
-	if !inShop {
-
-		if !g.pause {
-
-			framesCounter++
-
-			if kills >= killsRequired && g.player.lives > 0 {
-				inShop = true
-			}
-
-			if framesCounter%4 == 0 || framesCounter == 0 {
-				enemyFrame++
-				if g.player.reloading {
-					reloadCounter++
-				}
-				if enemyFrame > 4 {
-					enemyFrame = 0
-				}
-			}
-
-			updatePlayerLogic(g)
-			updateBullets(g) // Update shooting logic
-			updateEnemy(g)   // Update enemy logic
-			// Update controls if player is alive
-			if !g.gameOver {
-				keyCallback(g) // Game controls
-			}
-		}
-	} else {
-		kills = 0
-		enterShopScreen(g)
-		if rl.IsKeyPressed(rl.KeyEnter) {
-			exitShopScreen(g)
-			inShop = false
-		}
-	}
-	draw(g) // Display graphics
 }

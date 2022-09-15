@@ -26,7 +26,7 @@ func exitShopScreen(g *Game) {
 	}
 	// Initialize enemies
 	for i := 0; i < MaxEnemies; i++ {
-		g.enemy[i] = Enemy{rl.Vector2{X: float32(rl.GetRandomValue(0, screenWidth-100)), Y: float32(rl.GetRandomValue(screenHeight, screenHeight+1000))}, false, true, 3}
+		g.enemy[i] = Enemy{rl.Vector2{X: float32(rl.GetRandomValue(0, screenWidth-100)), Y: float32(rl.GetRandomValue(screenHeight, screenHeight+1000))}, true, 3}
 	}
 	// Reload all guns
 	for i := 0; i < Guns; i++ {

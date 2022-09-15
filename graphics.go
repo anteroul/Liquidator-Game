@@ -19,14 +19,7 @@ func draw(g *Game) {
 		// Draw enemies
 		for i := 0; i < MaxEnemies; i++ {
 			if g.enemy[i].active {
-				switch g.enemy[i].armed {
-				case true:
-					rl.DrawTextureRec(g.armedEnemyTexture, g.enemyRec, g.enemy[i].position, rl.White)
-					break
-				case false:
-					rl.DrawTextureRec(g.enemyTexture, g.enemyRec, g.enemy[i].position, rl.White)
-					break
-				}
+				rl.DrawTextureRec(g.enemyTexture, g.enemyRec, g.enemy[i].position, rl.White)
 			} else {
 				rl.DrawTextureRec(g.splatter, g.splatterRec, g.enemy[i].position, rl.White)
 			}
@@ -56,7 +49,6 @@ func draw(g *Game) {
 
 		// Game Over screen
 		if g.gameOver {
-			//rl.DrawTexture(g.deathScreen, 0, 0, rl.White)
 			rl.DrawText("Mission Failed!", screenWidth/2-280, screenHeight/2, 80, rl.Black)
 			rl.DrawText("Press Enter to retry", screenWidth/2-220, screenHeight/2+100, 40, rl.Violet)
 		}
