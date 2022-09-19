@@ -3,8 +3,22 @@ First fully functional version of my Arcade Shooter Game. You are a mercenary so
 
 IMPORTANT! Leaderboards are running currently on local host. A 24/7 running server will be deployed soon to make hiscores visible for every player online.
 
+# Running
+Client:
+```
+go get Liquidator
+go build
+./Liquidator
+```
+Server:
+```
+cd backend
+go build
+./backend
+```
+
 # Story so far:
-Few weeks ago a chemical weapon research facility exploded. A special operation rescue squad was sent but contact was lost shortly after. Immediately a special task force was sent to investigate the area and found humananoid like creatures with super human strength and strongly violent behaviour. In a matter of days all residents living in the nearby villages were infected with the same behaviour. Researchers suspect an exposure to Mutagene AFDP-16, a highly infectious biohazard that turns humans into bloodthirsty monsters.
+Few weeks ago a chemical weapon research facility exploded. A special operation rescue squad was sent but contact was lost shortly after. Immediately a special task force was sent to investigate the area and found humananoid like creatures with super human strength and strongly violent behaviour. In a matter of days all residents living in the nearby villages were infected with the same behaviour. Researchers suspect an exposure to Mutagene AFDP-16, a chemical agent that turns humans into bloodthirsty monsters.
 
 The military has hired you to protect the border. A fearless mercenary well experienced with firearms. You are paid well and will be greatly rewarded if the mission is successful. Otherwise you will be executed. Failure is not an option!
 ##### - Col. James Crawford
