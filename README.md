@@ -47,7 +47,7 @@ The military has hired you to protect the border. A fearless mercenary well expe
 #
 
 ### Credits:
-- Valiant (Programming & Game Design)
-- xXAshuraXx (Textures)
-- Jarpdzonson (Textures)
+- Valiant (Programming, Art & Game Design)
+- xXAshuraXx (Art)
+- Jarpdzonson (Art)
 - SuperPhat (Sound FX)
