@@ -1,7 +1,7 @@
 # Liquidator-Game
 First fully functional version of my Arcade Shooter Game. You are a mercenary soldier guarding the border of a quarantined area. Do not let anyone through!
 
-IMPORTANT! Leaderboards are running currently on local host. A 24/7 running server will be deployed soon to make hiscores visible for every player online.
+IMPORTANT! Leaderboards are currently running only on local host.
 
 #
 ### Version Notes:
