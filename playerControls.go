@@ -25,21 +25,24 @@ func switchWeapon(g *Game, weaponIndex int) {
 }
 
 func keyCallback(g *Game) {
+	var playerIsMoving = false
 	// Movement:
-	if rl.IsKeyDown(rl.KeyRight) {
+	if rl.IsKeyDown(rl.KeyRight) || rl.IsKeyDown(rl.KeyD) {
+		playerIsMoving = true
 		if g.player.position.X+80 < screenWidth {
 			g.player.position.X += g.player.speed
 		}
-		updateCharRec(g)
 	}
-	if rl.IsKeyDown(rl.KeyLeft) {
+	if rl.IsKeyDown(rl.KeyLeft) || rl.IsKeyDown(rl.KeyA) {
+		playerIsMoving = true
 		if g.player.position.X > 0 {
 			g.player.position.X -= g.player.speed
 		}
-		updateCharRec(g)
 	}
-	if rl.IsKeyUp(rl.KeyLeft) && rl.IsKeyUp(rl.KeyRight) {
+	if !playerIsMoving {
 		g.playerRec.X = 0
+	} else {
+		updateCharRec(g)
 	}
 	// Semi-auto:
 	if kills < killsRequired {
@@ -94,8 +97,10 @@ func keyCallback(g *Game) {
 	if rl.IsKeyPressed(rl.KeyFive) {
 		switchWeapon(g, 4) // M60
 	}
-	if rl.IsKeyPressed(rl.KeyEnd) {
-		g.player.lives = 0
+	if enableSuicide {
+		if rl.IsKeyPressed(rl.KeyEnd) {
+			g.player.lives = 0
+		}
 	}
 }
 

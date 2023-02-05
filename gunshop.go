@@ -18,7 +18,7 @@ func enterShopScreen(g *Game) {
 func exitShopScreen(g *Game) {
 	kills = 0
 	wave++
-	killsRequired = GetEnemies()
+	killsRequired = GetEnemies(g.difficulty)
 	g.player.position = rl.NewVector2(float32(screenWidth)/2, 40)
 	// Initialize bullets
 	for i := 0; i < MaxBullets; i++ {

@@ -48,9 +48,9 @@ func updateEnemy(g *Game) {
 
 func tangoDown(g *Game) {
 	rl.PlaySoundMulti(sfxDeath)
-	score += 200
+	score += 100 * ((int)(g.difficulty) + 1)
 	if score >= 0 {
-		money += 50 * wave
+		money += ((int)(g.difficulty) + 1) * 50
 	}
 	enemyFrame = 0
 	if RandBool() && g.player.lives != PlayerMaxLife {

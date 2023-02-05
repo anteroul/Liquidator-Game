@@ -7,8 +7,8 @@ import (
 	"time"
 )
 
-func GetEnemies() int {
-	return 20 * wave
+func GetEnemies(difficulty GameDifficulty) int {
+	return int(difficulty) + wave*20
 }
 
 func RandBool() bool {
@@ -17,6 +17,10 @@ func RandBool() bool {
 }
 
 func LaunchGame() {
+	var cDifficulty = Normal
+	var enableGore = true
+	enableSuicide = false
+
 	// Create window and set target FPS
 	rl.InitWindow(screenWidth, screenHeight, "The Liquidator")
 	rl.SetTargetFPS(60)
@@ -31,9 +35,9 @@ func LaunchGame() {
 	game.char = rl.LoadTexture("res/soldier.png")
 	game.dead = rl.LoadTexture("res/dead_soldier.png")
 	game.bg = rl.LoadTexture("res/background.png")
+	game.menuScreen = rl.LoadTexture("res/menu_screen.png")
 	game.shopScreen = rl.LoadTexture("res/shop_screen.png")
 	game.enemyTexture = rl.LoadTexture("res/enemy.png")
-	game.splatter = rl.LoadTexture("res/splatter.png")
 	game.explosion = rl.LoadTexture("res/explosion.png")
 	game.bulletTex = rl.LoadTexture("res/bullet.png")
 	game.armalite = rl.LoadTexture("res/armalite.png")
@@ -41,7 +45,10 @@ func LaunchGame() {
 	game.galil = rl.LoadTexture("res/galil.png")
 	game.groza = rl.LoadTexture("res/groza.png")
 	game.machineGun = rl.LoadTexture("res/m60.png")
-	game.playerRec = rl.Rectangle{Width: float32(game.char.Width / 4), Height: float32(game.char.Height)}
+	game.splatter = rl.LoadTexture("res/splatter.png")
+	game.blood = rl.LoadTexture("res/blood.png")
+
+	game.playerRec = rl.Rectangle{Width: float32(game.char.Width / 4), Height: float32(game.char.Height / 2)}
 	game.enemyRec = rl.Rectangle{Width: float32(game.enemyTexture.Width / 4), Height: float32(game.enemyTexture.Height)}
 	game.splatterRec = rl.Rectangle{Width: float32(game.splatter.Width / 4), Height: float32(game.splatter.Height)}
 	game.barbedWire = rl.Rectangle{X: 0, Y: 100, Width: screenWidth, Height: 80}
@@ -62,6 +69,8 @@ func LaunchGame() {
 		game.gun[i].ammo = game.gun[i].maxAmmo
 	}
 
+	game.difficulty = cDifficulty
+
 	rl.InitAudioDevice()
 	sfxRifle = rl.LoadSound("res/sounds/rifle.wav")
 	sfxDeath = rl.LoadSound("res/sounds/loro.mp3")
@@ -69,7 +78,11 @@ func LaunchGame() {
 	sfxSniper = rl.LoadSound("res/sounds/sniper.wav")
 	sfxReload = rl.LoadSound("res/sounds/reload.mp3")
 
-	killsRequired = GetEnemies()
+	if enableGore {
+		game.splatter = game.blood
+	}
+
+	killsRequired = GetEnemies(game.difficulty)
 	current, _ := user.Current()
 	username = current.Username
 
@@ -105,7 +118,7 @@ func Reset(game *Game) {
 	score = 0
 	money = 1000
 	wave = 1
-	killsRequired = GetEnemies()
+	killsRequired = GetEnemies(game.difficulty)
 	game.gameOver = false
 	// Initialize player
 	game.player.position = rl.NewVector2(float32(screenWidth)/2, 40)
@@ -117,7 +130,7 @@ func Reset(game *Game) {
 	}
 	// Initialize enemies
 	for i := 0; i < MaxEnemies; i++ {
-		game.enemy[i] = Enemy{rl.Vector2{X: float32(rl.GetRandomValue(0, screenWidth-100)), Y: float32(rl.GetRandomValue(screenHeight, screenHeight+1000))}, true, 3}
+		game.enemy[i] = Enemy{rl.Vector2{X: float32(rl.GetRandomValue(0, screenWidth-100)), Y: float32(rl.GetRandomValue(screenHeight, screenHeight+1000))}, true, float32(game.difficulty + 1)}
 	}
 	for i := 0; i < Guns; i++ {
 		game.gun[i].ammo = game.gun[i].maxAmmo
@@ -158,6 +171,8 @@ func (g *Game) deInit() {
 	rl.UnloadTexture(g.galil)
 	rl.UnloadTexture(g.groza)
 	rl.UnloadTexture(g.machineGun)
+	rl.UnloadTexture(g.menuScreen)
+	rl.UnloadTexture(g.blood)
 	rl.UnloadSound(sfxDeath)
 	rl.UnloadSound(sfxGroza)
 	rl.UnloadSound(sfxRifle)

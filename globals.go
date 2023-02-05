@@ -1,6 +1,8 @@
 package main
 
-import rl "github.com/gen2brain/raylib-go/raylib"
+import (
+	rl "github.com/gen2brain/raylib-go/raylib"
+)
 
 const screenWidth = 1280
 const screenHeight = 720
@@ -17,6 +19,7 @@ var killsRequired int
 var wave = 1
 var enableFullScreen bool
 var inShop = false
+var inMenu = true
 var displayLeaderboards = false
 var firingRateCounter = 0
 var framesCounter = 0
@@ -29,6 +32,17 @@ var sfxRifle rl.Sound
 var sfxSniper rl.Sound
 var sfxReload rl.Sound
 var username string
+var enableSuicide bool
+
+type GameDifficulty byte
+
+const (
+	Easy      GameDifficulty = iota
+	Normal    GameDifficulty = 1
+	Hard      GameDifficulty = 2
+	Insane    GameDifficulty = 3
+	Nightmare GameDifficulty = 4
+)
 
 type Player struct {
 	position  rl.Vector2
@@ -63,6 +77,7 @@ type Gun struct {
 }
 
 type Game struct {
+	difficulty   GameDifficulty
 	gameOver     bool
 	pause        bool
 	player       Player
@@ -74,9 +89,11 @@ type Game struct {
 	dead         rl.Texture2D
 	heart        rl.Texture2D
 	bg           rl.Texture2D
+	menuScreen   rl.Texture2D
 	shopScreen   rl.Texture2D
 	enemyTexture rl.Texture2D
 	splatter     rl.Texture2D
+	blood        rl.Texture2D
 	explosion    rl.Texture2D
 	bulletTex    rl.Texture2D
 	armalite     rl.Texture2D

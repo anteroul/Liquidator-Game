@@ -8,6 +8,7 @@ import (
 func draw(g *Game) {
 	rl.BeginDrawing()
 	rl.ClearBackground(rl.DarkGray)
+	rl.DrawTextureEx(g.menuScreen, rl.Vector2{float32(rl.GetScreenWidth() / 14), 0}, 0, 0.7, rl.White)
 	if !displayLeaderboards {
 		if !inShop {
 			rl.DrawTexture(g.bg, 0, 0, rl.White) // Draw background
