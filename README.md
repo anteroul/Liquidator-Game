@@ -5,6 +5,9 @@ IMPORTANT! Leaderboards are currently running only on local host.
 
 #
 ### Version Notes:
+##### v1.01 beta
+- Minor tweaks.
+- WASD and Mouse controls enabled by pressing F2.
 ##### v1.0 beta
 - First beta version
 ##### v0.9 alpha

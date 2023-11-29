@@ -19,7 +19,7 @@ var killsRequired int
 var wave = 1
 var enableFullScreen bool
 var inShop = false
-var inMenu = true
+var gamerMode = false
 var displayLeaderboards = false
 var firingRateCounter = 0
 var framesCounter = 0

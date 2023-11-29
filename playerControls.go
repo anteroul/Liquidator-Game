@@ -44,9 +44,11 @@ func keyCallback(g *Game) {
 	} else {
 		updateCharRec(g)
 	}
+
 	// Semi-auto:
 	if kills < killsRequired {
-		if rl.IsKeyPressed(rl.KeySpace) {
+
+		if rl.IsKeyPressed(rl.KeySpace) || gamerMode && rl.IsMouseButtonPressed(0) {
 			if g.gun[cWeapon].ammo > 0 && !g.player.reloading && !g.gun[cWeapon].automatic {
 				initNewBullet(g)
 				if !g.gun[cWeapon].armourPiercing {
@@ -56,8 +58,9 @@ func keyCallback(g *Game) {
 				}
 			}
 		}
+
 		// Full-auto:
-		if rl.IsKeyDown(rl.KeySpace) {
+		if rl.IsKeyDown(rl.KeySpace) || gamerMode && rl.IsMouseButtonDown(0) {
 			if g.gun[cWeapon].ammo > 0 && !g.player.reloading && g.gun[cWeapon].automatic {
 				firingRateCounter++
 				if firingRateCounter%g.gun[cWeapon].firingRate == 0 {
@@ -72,6 +75,7 @@ func keyCallback(g *Game) {
 			}
 		}
 	}
+
 	// Reload keys:
 	if rl.IsKeyPressed(rl.KeyR) {
 		if g.gun[cWeapon].ammo != g.gun[cWeapon].maxAmmo {
@@ -81,6 +85,7 @@ func keyCallback(g *Game) {
 			}
 		}
 	}
+
 	// Weapon keys:
 	if rl.IsKeyPressed(rl.KeyOne) {
 		switchWeapon(g, 0) // Armalite
@@ -102,6 +107,14 @@ func keyCallback(g *Game) {
 			g.player.lives = 0
 		}
 	}
+	if gamerMode {
+		if rl.IsKeyPressed(rl.KeyE) && cWeapon < 4 {
+			switchWeapon(g, cWeapon+1)
+		}
+		if rl.IsKeyPressed(rl.KeyQ) && cWeapon > 0 {
+			switchWeapon(g, cWeapon-1)
+		}
+	}
 }
 
 // Special keyboard events
@@ -120,6 +133,14 @@ func specialKeyCallback(g *Game) {
 			rl.SetTargetFPS(60)
 		} else {
 			rl.SetTargetFPS(int32(rl.GetMonitorRefreshRate(rl.GetCurrentMonitor())))
+		}
+	}
+	// Change the controller layout to WASD and mouse.
+	if rl.IsKeyPressed(rl.KeyF2) {
+		if !gamerMode {
+			gamerMode = true
+		} else {
+			gamerMode = false
 		}
 	}
 }
